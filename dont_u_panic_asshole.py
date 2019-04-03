@@ -42,9 +42,9 @@ class Game(object):
         self.__screen = pygame.display.set_mode((width,height),display_mode)
         pygame.display.set_caption(self.__game_title)
         if self.__settings['intro_enable']:
-            self.__state = gamestates.GAME_INTRO
+            self.__state = gamestates.INTRO
         else:
-            self.__state = gamestates.GAME_LOGIN
+            self.__state = gamestates.LOGIN
         print("Game initialized")
 
     def get_state(self):
@@ -72,27 +72,27 @@ class Game(object):
 if __name__=="__main__":
     main_loop = Game()
     main_loop.init()
-    intro = None
-    login = None
-    main_menu = None
-    server_list = None
-    settings = None
-    settings_video = None
-    settings_controls = None
-    settings_audio = None
-    creators = None
-    game = None
+    intro_obj = None
+    login_obj = None
+    main_menu_obj = None
+    server_list_obj = None
+    settings_obj = None
+    settings_video_obj = None
+    settings_controls_obj = None
+    settings_audio_obj = None
+    creators_obj = None
+    game_obj = None
     while True:
         if main_loop.get_state() == gamestates.QUIT:
             main_loop.quit()
         elif main_loop.get_state() == gamestates.INTRO:
-            if intro is None:
-                game_intro = intro.Intro(game)
-            main_loop.set_state(intro.loop())
+            if intro_obj is None:
+                intro_obj = intro.Intro(main_loop)
+            main_loop.set_state(intro_obj.loop())
         elif main_loop.get_state() == gamestates.LOGIN:
-            if login is None:
-                game_login = login.Login(game)
-            main_loop.set_state(login.loop())
+            if login_obj is None:
+                login_obj = login.Login(main_loop)
+            main_loop.set_state(login_obj.loop())
         elif main_loop.get_state() == gamestates.MAIN_MENU:
             pass
         elif main_loop.get_state() == gamestates.SERVER_LIST:
