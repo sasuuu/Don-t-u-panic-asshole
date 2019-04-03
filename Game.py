@@ -2,39 +2,36 @@ import pygame
 import sys
 import pygame.freetype
 from Main_menu import MainMenu
-
-red = (255, 0, 0)
-green = (0, 255, 0)
-blue = (0, 0, 255)
-yellow = (255, 255, 0)
-black = (0, 0, 0)
-white = (255, 255, 255)
+from colors import Color
 
 
 class Game(object):
     def __init__(self):
-        self.max_tps = 300.0
-        self.tps_delta = 0.0
+        self.__color = Color
+        self.__tps = 300.0  # Tick per second
+        self.__tps_delta = 0.0
+        screen_width = 1280
+        screen_height = 720
         # Init
         pygame.init()
-        self.screen = pygame.display.set_mode((1280, 720))
+        self.screen = pygame.display.set_mode((screen_width, screen_height))
         self.tps_clock = pygame.time.Clock()
         self.menu = MainMenu(self)
         while True:
             # handle events
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    sys.exit(0)
+                    sys.exit()
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                    sys.exit(0)
+                    sys.exit()
             # Tick
-            self.tps_delta += self.tps_clock.tick() / 1000.0
-            while self.tps_delta > 1 / self.max_tps:
+            self.__tps_delta += self.tps_clock.tick() / 1000.0
+            while self.__tps_delta > 1 / self.__tps:
                 self.tick()
-                self.tps_delta -= 1 / self.max_tps
+                self.__tps_delta -= 1 / self.__tps
 
             # Draw
-            self.screen.fill(white)
+            self.screen.fill(self.__color.white)
             self.draw()
             pygame.display.flip()
 
