@@ -7,4 +7,4 @@ class Login(object):
         print("Login initialized")
 
     def loop(self):
-        return gamestates.GAME_QUIT
+        return gamestates.QUIT
