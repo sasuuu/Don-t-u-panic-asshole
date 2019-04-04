@@ -25,13 +25,13 @@ media
 
 # Distribution / packaging
 .Python
+.idea/
 build/
 develop-eggs/
 dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -273,3 +273,6 @@ fabric.properties
 # Pyre type checker
 
 # End of https://www.gitignore.io/api/pycharm,python,django
+
+#linux directory config
+.directory
