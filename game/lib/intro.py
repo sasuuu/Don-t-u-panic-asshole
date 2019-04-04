@@ -5,6 +5,7 @@ from lib import colors
 FONT_STYLE = "Segoe UI"
 FONT_SIZE = 0.1
 
+
 class Intro(object):
     def __init__(self, game):
         self.__game = game
@@ -17,13 +18,15 @@ class Intro(object):
     def loop(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return gamestates.QUIT
+                self.__game.set_state(gamestates.QUIT)
+                return
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                return gamestates.LOGIN
+                self.__game.set_state(gamestates.LOGIN)
+                return
         time_from_start = pygame.time.get_ticks() - self.__time_start
-        if time_from_start > self.__intro_duration:
-            return gamestates.LOGIN
+        if time_from_start >= self.__intro_duration:
+            self.__game.set_state(gamestates.LOGIN)
+            return
         label = self.__font.render(self.__texts[time_from_start // (self.__intro_duration // len(self.__texts))], 1, colors.BLACK)
         label_rect = label.get_rect(center=(self.__game.get_screen().get_width() / 2, self.__game.get_screen().get_height() / 2))
         self.__game.get_screen().blit(label, label_rect)
-        return gamestates.INTRO

@@ -70,8 +70,8 @@ class Game(object):
 
 
 if __name__=="__main__":
-    main_loop = Game()
-    main_loop.init()
+    main = Game()
+    main.init()
     intro_obj = None
     login_obj = None
     main_menu_obj = None
@@ -83,32 +83,32 @@ if __name__=="__main__":
     creators_obj = None
     game_obj = None
     while True:
-        if main_loop.get_state() == gamestates.QUIT:
-            main_loop.quit()
-        elif main_loop.get_state() == gamestates.INTRO:
+        if main.get_state() == gamestates.QUIT:
+            main.quit()
+        elif main.get_state() == gamestates.INTRO:
             if intro_obj is None:
-                intro_obj = intro.Intro(main_loop)
-            main_loop.set_state(intro_obj.loop())
-        elif main_loop.get_state() == gamestates.LOGIN:
+                intro_obj = intro.Intro(main)
+            intro_obj.loop()
+        elif main.get_state() == gamestates.LOGIN:
             if login_obj is None:
-                login_obj = login.Login(main_loop)
-            main_loop.set_state(login_obj.loop())
-        elif main_loop.get_state() == gamestates.MAIN_MENU:
+                login_obj = login.Login(main)
+            login_obj.loop()
+        elif main.get_state() == gamestates.MAIN_MENU:
             pass
-        elif main_loop.get_state() == gamestates.SERVER_LIST:
+        elif main.get_state() == gamestates.SERVER_LIST:
             pass
-        elif main_loop.get_state() == gamestates.SETTINGS:
+        elif main.get_state() == gamestates.SETTINGS:
             pass
-        elif main_loop.get_state() == gamestates.SETTINGS_VIDEO:
+        elif main.get_state() == gamestates.SETTINGS_VIDEO:
             pass
-        elif main_loop.get_state() == gamestates.SETTINGS_CONTROLS:
+        elif main.get_state() == gamestates.SETTINGS_CONTROLS:
             pass
-        elif main_loop.get_state() == gamestates.SETTINGS_AUDIO:
+        elif main.get_state() == gamestates.SETTINGS_AUDIO:
             pass
-        elif main_loop.get_state() == gamestates.CREATORS:
+        elif main.get_state() == gamestates.CREATORS:
             pass
-        elif main_loop.get_state() == gamestates.GAME:
+        elif main.get_state() == gamestates.GAME:
             pass
         else:
-            main_loop.crash("Unknown game state")
-        main_loop.tick()
+            main.crash("Unknown game state")
+        main.tick()

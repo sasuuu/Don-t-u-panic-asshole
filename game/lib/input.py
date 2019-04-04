@@ -23,10 +23,10 @@ class Input(object):
     def __init__(self, pos_x=DEFAULT_POS_X, pos_y=DEFAULT_POS_Y, width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT, label='',
                  label_size=DEFAULT_LABEL_SIZE, text_size=DEFAULT_TEXT_SIZE, label_color=DEFAULT_LABEL_COLOR,
                  text_color=DEFAULT_TEXT_COLOR, is_password=False):
-        self.__pos_x = pos_x;
-        self.__pos_y = pos_y;
+        self.__pos_x = pos_x
+        self.__pos_y = pos_y
         if width < 1:
-            suf = pygame.display.get_surface();
+            suf = pygame.display.get_surface()
             if suf is not None:
                 self.__width = width * suf.get_width()
             else:
@@ -34,7 +34,7 @@ class Input(object):
         else:
             self.__width = width
         if height < 1:
-            suf = pygame.display.get_surface();
+            suf = pygame.display.get_surface()
             if suf is not None:
                 self.__height = height * suf.get_height()
             else:
@@ -51,7 +51,7 @@ class Input(object):
         self.__text_color = text_color
         self.__active = False
         self.__font_text = pygame.font.SysFont(FONT_STYLE, self.__text_size)
-        self.__text_start = 0;
+        self.__text_start = 0
 
     def check_mouse(self, input_rect):
         if pygame.mouse.get_pressed()[0] and input_rect.collidepoint(pygame.mouse.get_pos()):
@@ -87,7 +87,7 @@ class Input(object):
     def get_label(self):
         input_label = self.__font_label.render(self.__label, True, self.__label_color)
         input_label_rect = input_label.get_rect()
-        input_label_rect.center = (self.__pos_x + self.__width / 2, self.__pos_y - input_label_rect.height)
+        input_label_rect.center = (self.__pos_x + self.__width / 2, self.__pos_y - input_label_rect.height / 2)
         return input_label, input_label_rect
 
     def draw(self, events):
