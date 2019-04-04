@@ -1,5 +1,5 @@
 import pygame as py
-from lib import ServerList
+from lib import server_list
 
 
 class Game:
