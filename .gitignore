@@ -274,5 +274,10 @@ fabric.properties
 
 # End of https://www.gitignore.io/api/pycharm,python,django
 
+<<<<<<< HEAD
 #linux directory config
 .directory
+=======
+#default linux directory config file
+.directory
+>>>>>>> 2c564bee8424783ee01d04d3ae2ada4af87a33dc
