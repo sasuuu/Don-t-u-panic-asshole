@@ -23,8 +23,22 @@ class Input(object):
     def __init__(self, pos_x=DEFAULT_POS_X, pos_y=DEFAULT_POS_Y, width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT, label='',
                  label_size=DEFAULT_LABEL_SIZE, text_size=DEFAULT_TEXT_SIZE, label_color=DEFAULT_LABEL_COLOR,
                  text_color=DEFAULT_TEXT_COLOR, is_password=False):
-        self.__pos_x = pos_x
-        self.__pos_y = pos_y
+        if pos_x < 1:
+            suf = pygame.display.get_surface()
+            if suf is not None:
+                self.__pos_x = pos_x * suf.get_width()
+            else:
+                self.__pos_x = DEFAULT_POS_X
+        else:
+            self.__pos_x = pos_x
+        if pos_y < 1:
+            suf = pygame.display.get_surface()
+            if suf is not None:
+                self.__pos_y = pos_y * suf.get_height()
+            else:
+                self.__pos_y = DEFAULT_POS_Y
+        else:
+            self.__pos_y = pos_y
         if width < 1:
             suf = pygame.display.get_surface()
             if suf is not None:

@@ -6,8 +6,8 @@ from game.lib import input
 class Login(object):
     def __init__(self, game):
         self.__game = game
-        self.__input_login = input.Input(100, 100, 0.8, 0.2, 'Login')
-        self.__input_password = input.Input(100, 300, 0.8, 0.2, 'Password', is_password=True)
+        self.__input_login = input.Input(0.25, 0.3, 0.5, 0.1, 'Login')
+        self.__input_password = input.Input(0.25, 0.5, 0.5, 0.1, 'Password', is_password=True)
         print("Login initialized")
 
     def loop(self):
