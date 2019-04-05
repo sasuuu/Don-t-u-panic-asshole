@@ -3,16 +3,21 @@ import os
 import sys
 import json
 import _thread as thread
+from json import JSONDecodeError
+
 from lib import errors_provider as error
+
+from lib import request_handlers as req
 
 
 class Server:
-    def __init__(self):
+    def __init__(self, request_handlers_chain):
         self.__IP_ADDRESS = None
         self.__PORT_NUMBER = None
         self.__MAX_HOSTS = None
         self.__socket = None
         self.__connected_users = []
+        self.__request_handlers_chain = request_handlers_chain
         self.__config_file = "config/server_config.json"
         self.__read_config()
         self.__handle_binding()
@@ -56,9 +61,28 @@ class Server:
         while data:
             data = connection.recv(1024)
             print(f'Receiving data from {address} = {data}')
+            respond = self.__handle_data(data)
+            connection.send(respond)
         self.__connected_users.remove([connection, address])
         connection.close()
+        print(f'User disconnect {address}')
+
+    def __handle_data(self, data) -> bytes:
+        try:
+            request_string = data.decode('utf-8')
+            print('request string: ', request_string)  # debug info
+            json_data = json.loads(request_string)
+            print('json data: ', json_data)  # debug info
+            respond_to_parse = self.__request_handlers_chain.handle(json_data)
+            print('respond_to_parse: ', json_data)  # debug info
+            respond_str = json.dumps(respond_to_parse)
+            respond_bytes = str.encode(respond_str)
+        except (JSONDecodeError, UnicodeDecodeError):
+            # todo return json respond
+            respond_bytes = b"decode error\n"
+        return respond_bytes
 
 
 if __name__ == "__main__":
-    __server = Server()
+    __testChain = req.EchoRequestHandler(req.PingRequestHandler(req.ServerListRequestHandler()))
+    __server = Server(__testChain)
