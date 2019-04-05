@@ -1,6 +1,6 @@
 import pygame
-from lib import gamestates
-from lib import input
+from game.lib import gamestates
+from game.lib import input
 
 
 class Login(object):

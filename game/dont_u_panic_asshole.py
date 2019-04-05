@@ -1,10 +1,10 @@
 import pygame
 import json
 import os
-from lib import gamestates
-from lib import intro
-from lib import login
-from lib import colors
+from game.lib import gamestates
+from game.lib import intro
+from game.lib import login
+from game.lib import colors
 
 
 class Game(object):
@@ -23,7 +23,7 @@ class Game(object):
         file_exists = os.path.isfile(self.__settings_file)
         if not file_exists:
             self.crash("Settings file does not exists")
-        with open("settings.json") as json_file:
+        with open(self.__settings_file) as json_file:
             data = json.load(json_file)
         self.__settings = data
         return data

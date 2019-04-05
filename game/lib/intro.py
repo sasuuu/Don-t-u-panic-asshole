@@ -1,6 +1,6 @@
 import pygame
-from lib import gamestates
-from lib import colors
+from game.lib import gamestates
+from game.lib import colors
 
 FONT_STYLE = "Segoe UI"
 FONT_SIZE = 0.1

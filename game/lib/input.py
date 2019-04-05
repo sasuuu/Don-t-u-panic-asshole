@@ -1,5 +1,5 @@
 import pygame
-from lib import colors
+from game.lib import colors
 
 DEFAULT_WIDTH = 100
 DEFAULT_HEIGHT = 50
