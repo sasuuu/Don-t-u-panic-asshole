@@ -1,4 +1,5 @@
 from abc import abstractmethod, ABC
+
 from enum import Enum
 
 
@@ -54,7 +55,10 @@ class ServerListRequestHandler(RequestHandler):
         self._request_type = RequestType.SERVER_LIST
 
     def _handle_request(self, request):
-        return {'type': RequestType.SERVER_LIST.value, 'list': [('127.0.0.1', 'alpha'), ('127.0.0.2', 'beta')]}
+        return {'type': RequestType.SERVER_LIST.value, 'list': [
+            {'address': '127.0.0.1', 'name': 'alpha', 'max_players': 32, 'players': 5, 'avg-ping': 40},
+            {'address': '127.0.0.2', 'name': 'beta', 'max_players': 64, 'players': 16, 'avg-ping': 61}
+        ]}
 
 
 class EchoRequestHandler(RequestHandler):
