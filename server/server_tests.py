@@ -29,7 +29,7 @@ sock.connect(server_address)
 for request in requests_to_server:
     sock.send(request_to_server(request))
     print('<-', sock.recv(1024))
-    sleep(2);
+    sleep(1)
 
 request_bytes = b'bad encode data'
 print('->', request_bytes)

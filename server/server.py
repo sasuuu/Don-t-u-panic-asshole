@@ -2,26 +2,29 @@ import socket
 import os
 import sys
 import json
-import _thread as thread
 from json import JSONDecodeError
+from threading import Thread
 
 from lib import errors_provider as error
 
-from lib import request_handlers as req
+from lib import request_handler as req
 
 
-class Server:
+class Server(object):
     def __init__(self, request_handlers_chain):
         self.__IP_ADDRESS = None
         self.__PORT_NUMBER = None
         self.__MAX_HOSTS = None
         self.__socket = None
-        self.__connected_users = []
+        self.__connected_clients = []
         self.__request_handlers_chain = request_handlers_chain
         self.__config_file = "config/server_config.json"
         self.__read_config()
         self.__handle_binding()
         self.__listen_for_connections()
+
+    def get_client_list(self):
+        return self.__connected_clients
 
     def __read_config(self):
         if os.path.isfile(self.__config_file):
@@ -52,21 +55,34 @@ class Server:
         print("Server initialized")
         while True:
             connection, address = self.__socket.accept()
-            thread.start_new_thread(self.__handle_connection, (connection, address))
+            client = Connection(connection, address, self.__request_handlers_chain, self)
+            self.__connected_clients.append(client)
+            client.start()
 
-    def __handle_connection(self, connection, address):
-        self.__connected_users.append([connection, address])
-        print(f'Users that are connected {self.__connected_users}')
+    def notify_end_connection(self, client):
+        self.__connected_clients.remove(client)
+
+
+class Connection(Thread):
+    def __init__(self, connection, address, request_handlers_chain, server=None):
+        Thread.__init__(self)
+        self.__connection = connection
+        self.__address = address
+        self.__request_handlers_chain = request_handlers_chain
+        self.__server = server
+
+    def run(self):
+        print(f'Users that are connected {self.__connection}')
         data = True
         while data:
-            data = connection.recv(1024)
-            print(f'Receiving data from {address} = {data}')
+            data = self.__connection.recv(1024)
+            print(f'Receiving data from {self.__address} = {data}')
             if data is not b'':
                 respond = self.__handle_data(data)
-                connection.send(respond)
-        self.__connected_users.remove([connection, address])
-        connection.close()
-        print(f'User disconnect {address}')
+                self.__connection.send(respond)
+        self.__connection.close()
+        print(f'User disconnect {self.__address}')
+        self.__server.notify_end_connection(self)
 
     def __handle_data(self, data) -> bytes:
         try:
@@ -74,7 +90,6 @@ class Server:
             respond_to_parse = self.__request_handlers_chain.handle(json_data)
             respond_bytes = self.__json_to_byte(respond_to_parse)
         except (JSONDecodeError, UnicodeDecodeError):
-            # todo return json respond
             respond_to_parse = req.respond_error('decode error')
             respond_bytes = self.__json_to_byte(respond_to_parse)
         return respond_bytes
@@ -82,14 +97,14 @@ class Server:
     @staticmethod
     def __byte_to_json(data):
         request_string = data.decode('utf-8')
-        print('request string: ', request_string)  # debug info
+        # print('DEBUG: request string: ', request_string)  # debug info
         json_data = json.loads(request_string)
-        print('json data: ', json_data)  # debug info
+        # print('DEBUG: json data: ', json_data)  # debug info
         return json_data
 
     @staticmethod
     def __json_to_byte(respond_to_parse):
-        print('respond_to_parse: ', respond_to_parse)  # debug info
+        # print('DEBUG: respond_to_parse: ', respond_to_parse)  # debug info
         respond_str = json.dumps(respond_to_parse)
         respond_bytes = str.encode(respond_str, 'utf-8')
         return respond_bytes
