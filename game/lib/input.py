@@ -89,7 +89,7 @@ class Input(object):
     def get_text(self):
         if self.__is_password:
             str = ''
-            for i in range(self.__text_start,len(self.__value)):
+            for i in range(self.__text_start, len(self.__value)):
                 str = str + '*'
             input_text = self.__font_text.render(str, True, self.__text_color)
         else:
@@ -118,7 +118,7 @@ class Input(object):
         input_text, input_text_rect = self.get_text()
         if input_text_rect.width > input_rect.width:
             self.__text_start = self.__text_start + 1
-        display_surface.blit(input_surface,input_rect)
+        display_surface.blit(input_surface, input_rect)
         display_surface.blit(input_text, input_text_rect)
         if self.__label is not None:
             input_label, input_label_rect = self.get_label()

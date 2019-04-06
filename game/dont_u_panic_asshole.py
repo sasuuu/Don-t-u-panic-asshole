@@ -94,7 +94,16 @@ if __name__=="__main__":
                 login_obj = login.Login(main)
             login_obj.loop()
         elif main.get_state() == gamestates.MAIN_MENU:
-            pass
+            # Only for login test
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    main.set_state(gamestates.QUIT)
+            test_text = pygame.font.SysFont("Segoe UI", 60)
+            display_surface = pygame.display.get_surface()
+            test = test_text.render("Main menu", True, colors.BLACK)
+            test_rect = test.get_rect()
+            test_rect.center = (display_surface.get_width() / 2, display_surface.get_height() / 2)
+            display_surface.blit(test, test_rect)
         elif main.get_state() == gamestates.SERVER_LIST:
             pass
         elif main.get_state() == gamestates.SETTINGS:
