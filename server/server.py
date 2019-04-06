@@ -61,27 +61,37 @@ class Server:
         while data:
             data = connection.recv(1024)
             print(f'Receiving data from {address} = {data}')
-            respond = self.__handle_data(data)
-            connection.send(respond)
+            if data is not b'':
+                respond = self.__handle_data(data)
+                connection.send(respond)
         self.__connected_users.remove([connection, address])
         connection.close()
         print(f'User disconnect {address}')
 
     def __handle_data(self, data) -> bytes:
         try:
-            request_string = data.decode('utf-8')
-            print('request string: ', request_string)  # debug info
-            json_data = json.loads(request_string)
-            print('json data: ', json_data)  # debug info
+            json_data = self.__byte_to_json(data)
             respond_to_parse = self.__request_handlers_chain.handle(json_data)
-            print('respond_to_parse: ', json_data)  # debug info
-            respond_str = json.dumps(respond_to_parse)
-            respond_bytes = str.encode(respond_str)
+            respond_bytes = self.__json_to_byte(respond_to_parse)
         except (JSONDecodeError, UnicodeDecodeError):
             # todo return json respond
             respond_to_parse = req.respond_error('decode error')
-            respond_str = json.dumps(respond_to_parse)
-            respond_bytes = str.encode(respond_str)
+            respond_bytes = self.__json_to_byte(respond_to_parse)
+        return respond_bytes
+
+    @staticmethod
+    def __byte_to_json(data):
+        request_string = data.decode('utf-8')
+        print('request string: ', request_string)  # debug info
+        json_data = json.loads(request_string)
+        print('json data: ', json_data)  # debug info
+        return json_data
+
+    @staticmethod
+    def __json_to_byte(respond_to_parse):
+        print('respond_to_parse: ', respond_to_parse)  # debug info
+        respond_str = json.dumps(respond_to_parse)
+        respond_bytes = str.encode(respond_str, 'utf-8')
         return respond_bytes
 
 
