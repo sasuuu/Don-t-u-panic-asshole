@@ -79,7 +79,9 @@ class Server:
             respond_bytes = str.encode(respond_str)
         except (JSONDecodeError, UnicodeDecodeError):
             # todo return json respond
-            respond_bytes = b"decode error\n"
+            respond_to_parse = req.respond_error('decode error')
+            respond_str = json.dumps(respond_to_parse)
+            respond_bytes = str.encode(respond_str)
         return respond_bytes
 
 

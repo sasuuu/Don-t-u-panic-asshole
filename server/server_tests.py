@@ -3,12 +3,13 @@ import os
 import socket
 
 requests_to_server = [{'type': 4}, {'type': 3}, {'type': 2}, {'type': 1, "message": "hello world"}, {'type': 1},
-                      {'type': 1, 'streange': 'xD'}]
+                      {'type': 1, 'error_data': 'xD'}]
 
 
 def request_to_server(request_to_parse):
     request_str = json.dumps(request_to_parse)
     request_bytes = str.encode(request_str)
+    print('->', request_bytes)
     return request_bytes
 
 
@@ -26,6 +27,11 @@ sock.connect(server_address)
 
 for request in requests_to_server:
     sock.send(request_to_server(request))
-    print(sock.recv(1024))
+    print('<-', sock.recv(1024))
+
+request_bytes = b'bad encode data'
+print('->', request_bytes)
+sock.send(request_bytes)
+print('<-', sock.recv(1024))
 
 sock.close()

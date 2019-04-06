@@ -7,6 +7,11 @@ class RequestType(Enum):
     MESSAGE = 2
     PING = 3
     SERVER_LIST = 4
+    ERROR = 5
+
+
+def respond_error(message: str):
+    return {'type': RequestType.ERROR.value, 'message': message}
 
 
 class RequestHandler(ABC):
@@ -17,6 +22,10 @@ class RequestHandler(ABC):
 
     def add_next(self, next_handler):
         self.__next_handler = next_handler
+
+    @staticmethod
+    def _respond_message(message):
+        return {'type': RequestType.MESSAGE.value, 'message': message}
 
     def _check_can_you_handle_request(self, request) -> bool:
         if request['type'] == self._request_type.value:
@@ -33,7 +42,7 @@ class RequestHandler(ABC):
             return self._handle_request(request)
         else:
             if self.__next_handler is None:
-                return "unsupported request"
+                return respond_error("unsupported request")
             else:
                 return self.__next_handler.handle(request)
 
@@ -45,7 +54,7 @@ class ServerListRequestHandler(RequestHandler):
         self._request_type = RequestType.SERVER_LIST
 
     def _handle_request(self, request):
-        return {'type': RequestType.MESSAGE.value, 'message': [('127.0.0.1', 'alpha'), ('127.0.0.2', 'beta')]}
+        return {'type': RequestType.SERVER_LIST.value, 'list': [('127.0.0.1', 'alpha'), ('127.0.0.2', 'beta')]}
 
 
 class EchoRequestHandler(RequestHandler):
@@ -56,9 +65,9 @@ class EchoRequestHandler(RequestHandler):
 
     def _handle_request(self, request):
         try:
-            return {'type': RequestType.MESSAGE.value, 'message': request['message']}
+            return self._respond_message(request['message'])
         except KeyError:
-            return "syntax error"
+            return respond_error('syntax error')
 
 
 class PingRequestHandler(RequestHandler):
@@ -68,7 +77,7 @@ class PingRequestHandler(RequestHandler):
         self._request_type = RequestType.PING
 
     def _handle_request(self, request):
-        return {'type': RequestType.MESSAGE.value, 'message': 'pong'}
+        return self._respond_message('pong')
 
 
 if __name__ == "__main__":
