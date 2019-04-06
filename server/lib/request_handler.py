@@ -1,14 +1,5 @@
 from abc import abstractmethod, ABC
-
-from enum import Enum
-
-
-class RequestType(Enum):
-    ECHO_TEST = 1
-    MESSAGE = 2
-    PING = 3
-    SERVER_LIST = 4
-    ERROR = 5
+from lib.request_type import RequestType
 
 
 def respond_error(message: str):
@@ -48,7 +39,7 @@ class RequestHandler(ABC):
                 return self.__next_handler.handle(request)
 
 
-# todo implement this handler
+# todo implement this handler bcs now is only dummy to test
 class ServerListRequestHandler(RequestHandler):
     def __init__(self, next_handler=None):
         super().__init__(next_handler)

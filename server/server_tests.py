@@ -1,6 +1,7 @@
 import json
 import os
 import socket
+from time import sleep
 
 requests_to_server = [{'type': 4}, {'type': 3}, {'type': 2}, {'type': 1, "message": "hello world"}, {'type': 1},
                       {'type': 1, 'error_data': 'xD'}]
@@ -28,6 +29,7 @@ sock.connect(server_address)
 for request in requests_to_server:
     sock.send(request_to_server(request))
     print('<-', sock.recv(1024))
+    sleep(2);
 
 request_bytes = b'bad encode data'
 print('->', request_bytes)
