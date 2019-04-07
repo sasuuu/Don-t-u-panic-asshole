@@ -15,7 +15,15 @@ class Login(object):
         self.__input_login = input.Input(0.25, 0.3, 0.5, 0.1, 'Username')
         self.__input_password = input.Input(0.25, 0.5, 0.5, 0.1, 'Password', is_password=True)
         self.__login_button = button.Button(0.25, 0.65, 0.5, 0.1, text='LOGIN', function=self.login)
+        self.__info = button.Button(0.1, 0.85, 0.8, 0.1, text='Enter your username and password',
+                                    function=self.hide_info, hover_color=colors.GREEN, nohover_color=colors.GREEN,
+                                    button_border=1)
+        self.__show_info = True
         print("Login initialized")
+
+    def hide_info(self):
+        self.__show_info = False
+        self.__info.set_text('')
 
     def login(self):
         login = self.__input_login.get_value()
@@ -27,6 +35,9 @@ class Login(object):
             self.__game.set_state(gamestates.MAIN_MENU)
         else:
             print("Login failure")
+            self.__info.set_text('Wrong username or password')
+            self.__info.set_color(colors.RED)
+            self.__show_info = True
 
     def loop(self):
         events = pygame.event.get()
@@ -38,6 +49,8 @@ class Login(object):
         title_rect = title.get_rect()
         title_rect.center = (display_surface.get_width() / 2, display_surface.get_height() * 0.1)
         display_surface.blit(title, title_rect)
+        if self.__show_info:
+            self.__info.draw(events)
         self.__input_login.draw(events)
         self.__input_password.draw(events)
         self.__login_button.draw(events)

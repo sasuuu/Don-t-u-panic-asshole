@@ -9,8 +9,8 @@ DEFAULT_TEXT_SIZE = 34
 DEFAULT_LABEL_SIZE = 34
 FONT_STYLE = "Segoe UI"
 DEFAULT_INPUT_BORDER = 1
-INPUT_FOCUS_ALPHA = 80
-INPUT_NOFOCUS_ALPHA = 20
+DEFAULT_FOCUS_COLOR = colors.DEFAULT_INPUT_FOCUS_COLOR
+DEFAULT_NOFOCUS_COLOR = colors.DEFAULT_INPUT_NOFOCUS_COLOR
 DEFAULT_LABEL_COLOR = colors.BLACK
 DEFAULT_TEXT_COLOR = colors.BLACK
 DEFAULT_BORDER_COLOR = colors.BLACK
@@ -23,8 +23,8 @@ KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',
 class Input(object):
     def __init__(self, pos_x=DEFAULT_POS_X, pos_y=DEFAULT_POS_Y, width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT, label='',
                  label_size=DEFAULT_LABEL_SIZE, text_size=DEFAULT_TEXT_SIZE, label_color=DEFAULT_LABEL_COLOR,
-                 text_color=DEFAULT_TEXT_COLOR, input_border=DEFAULT_INPUT_BORDER, border_colo=DEFAULT_BORDER_COLOR,
-                 is_password=False):
+                 text_color=DEFAULT_TEXT_COLOR, input_border=DEFAULT_INPUT_BORDER, border_color=DEFAULT_BORDER_COLOR,
+                 focus_color=DEFAULT_FOCUS_COLOR, nofocus_color=DEFAULT_NOFOCUS_COLOR, is_password=False):
         if pos_x < 1:
             suf = pygame.display.get_surface()
             if suf is not None:
@@ -69,7 +69,9 @@ class Input(object):
         self.__font_text = pygame.font.SysFont(FONT_STYLE, self.__text_size)
         self.__text_start = 0
         self.__input_border = input_border
-        self.__border_color = DEFAULT_BORDER_COLOR
+        self.__border_color = border_color
+        self.__focus_color = focus_color
+        self.__nofocus_color = nofocus_color
 
     def check_mouse(self, input_rect):
         if pygame.mouse.get_pressed()[0] and input_rect.collidepoint(pygame.mouse.get_pos()):
@@ -110,17 +112,20 @@ class Input(object):
 
     def draw(self, events):
         input_surface = pygame.Surface((self.__width, self.__height))
-        input_surface.fill(colors.GREEN)
-        if self.__input_border > 0:
-            pygame.draw.rect(input_surface, self.__border_color, (0, 0, input_surface.get_width(),
-                             input_surface.get_height()), self.__input_border)
         input_rect = pygame.Rect(self.__pos_x, self.__pos_y, self.__width, self.__height)
         self.check_mouse(input_rect)
         if self.__active:
-            input_surface.set_alpha(INPUT_FOCUS_ALPHA)
+            input_surface.fill(self.__focus_color[:3])
+            if len(self.__focus_color) != 3:
+                input_surface.set_alpha(self.__focus_color[3])
             self.check_user_input(events)
         else:
-            input_surface.set_alpha(INPUT_NOFOCUS_ALPHA)
+            input_surface.fill(self.__nofocus_color[:3])
+            if len(self.__nofocus_color) != 3:
+                input_surface.set_alpha(self.__nofocus_color[3])
+        if self.__input_border > 0:
+            pygame.draw.rect(input_surface, self.__border_color, (0, 0, input_surface.get_width(),
+                             input_surface.get_height()), self.__input_border)
         display_surface = pygame.display.get_surface()
         input_text, input_text_rect = self.get_text()
         if input_text_rect.width > input_rect.width:
