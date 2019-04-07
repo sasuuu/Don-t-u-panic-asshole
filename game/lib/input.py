@@ -8,11 +8,12 @@ DEFAULT_POS_Y = 0
 DEFAULT_TEXT_SIZE = 34
 DEFAULT_LABEL_SIZE = 34
 FONT_STYLE = "Segoe UI"
-INPUT_BORDER = 1
+DEFAULT_INPUT_BORDER = 1
 INPUT_FOCUS_ALPHA = 80
 INPUT_NOFOCUS_ALPHA = 20
 DEFAULT_LABEL_COLOR = colors.BLACK
 DEFAULT_TEXT_COLOR = colors.BLACK
+DEFAULT_BORDER_COLOR = colors.BLACK
 KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',
         'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l',
         'z', 'x', 'c', 'v', 'b', 'n', 'm',
@@ -22,7 +23,8 @@ KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',
 class Input(object):
     def __init__(self, pos_x=DEFAULT_POS_X, pos_y=DEFAULT_POS_Y, width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT, label='',
                  label_size=DEFAULT_LABEL_SIZE, text_size=DEFAULT_TEXT_SIZE, label_color=DEFAULT_LABEL_COLOR,
-                 text_color=DEFAULT_TEXT_COLOR, is_password=False):
+                 text_color=DEFAULT_TEXT_COLOR, input_border=DEFAULT_INPUT_BORDER, border_colo=DEFAULT_BORDER_COLOR,
+                 is_password=False):
         if pos_x < 1:
             suf = pygame.display.get_surface()
             if suf is not None:
@@ -66,6 +68,8 @@ class Input(object):
         self.__active = False
         self.__font_text = pygame.font.SysFont(FONT_STYLE, self.__text_size)
         self.__text_start = 0
+        self.__input_border = input_border
+        self.__border_color = DEFAULT_BORDER_COLOR
 
     def check_mouse(self, input_rect):
         if pygame.mouse.get_pressed()[0] and input_rect.collidepoint(pygame.mouse.get_pos()):
@@ -107,6 +111,9 @@ class Input(object):
     def draw(self, events):
         input_surface = pygame.Surface((self.__width, self.__height))
         input_surface.fill(colors.GREEN)
+        if self.__input_border > 0:
+            pygame.draw.rect(input_surface, self.__border_color, (0, 0, input_surface.get_width(),
+                             input_surface.get_height()), self.__input_border)
         input_rect = pygame.Rect(self.__pos_x, self.__pos_y, self.__width, self.__height)
         self.check_mouse(input_rect)
         if self.__active:
