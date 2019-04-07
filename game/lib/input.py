@@ -54,7 +54,7 @@ class Input(object):
             if suf is not None:
                 self.__height = height * suf.get_height()
             else:
-                self.__width = DEFAULT_HEIGHT
+                self.__height = DEFAULT_HEIGHT
         else:
             self.__height = height
         self.__is_password = is_password
