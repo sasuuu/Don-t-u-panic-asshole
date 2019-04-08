@@ -9,6 +9,7 @@ from lib import request_types as request
 
 
 class Server:
+
     def __init__(self):
         self.__IP_ADDRESS = None
         self.__PORT_NUMBER = None

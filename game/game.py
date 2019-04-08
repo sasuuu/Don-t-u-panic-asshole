@@ -2,6 +2,7 @@ import pygame as py
 
 
 class Game:
+
     def __init__(self, text, text2):
         self.text = text
         self.text2 = text2

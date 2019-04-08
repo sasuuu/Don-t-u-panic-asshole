@@ -2,7 +2,7 @@ import socket
 import pickle
 import json
 from lib import errors_provider
-from lib.connections.request.login import Login
+from lib.connections.request.login_data import Login
 
 
 class Connector:

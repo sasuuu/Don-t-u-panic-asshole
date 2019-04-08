@@ -2,8 +2,8 @@ import pygame as py
 import gamestates
 
 
-
 class ServerList:
+
     def __init__(self, game, connector):
         self.__menu_title = "Servers"
         self.__connector = connector
@@ -29,7 +29,6 @@ class ServerList:
             else:
                 self.__generate_view()
                 return gamestates.SERVER_LIST
-
 
     def __handle_active_server_up(self):
         if self.__active_server > 0 :
