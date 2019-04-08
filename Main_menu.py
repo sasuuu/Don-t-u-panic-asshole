@@ -1,6 +1,8 @@
 import pygame
 import sys
 import pygame.freetype
+
+from Creators_menu import CreatorsMenu
 from colors import Color
 
 
@@ -56,7 +58,8 @@ class MainMenu(object):
                 elif txt == "Setting":
                     pass
                 elif txt == "Authors":
-                    pass
+                    CreatorsMenu(self, self.__game.screen).show_creators()
+                    self.draw()
                 elif txt == "Exit":
                     pygame.quit()
                     sys.exit()

@@ -1,0 +1,11 @@
+Twórcy
+Mechanika gry:
+Filip Merta, Artur Kulig, Karolina Kwilosz, Filip Krzemień, Aleksandra Krzystanek
+Fabuła:
+Robert Kubica, Daniel,
+Baza danych:
+Marcin Kurdziel
+Serwer:
+Grzegorz Król
+Front:
+Zofia Łyko.
