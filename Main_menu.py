@@ -58,7 +58,7 @@ class MainMenu(object):
                 elif txt == "Setting":
                     pass
                 elif txt == "Authors":
-                    CreatorsMenu(self, self.__game.screen).show_creators()
+                    CreatorsMenu(self.__game.screen).show_creators()
                     self.draw()
                 elif txt == "Exit":
                     pygame.quit()

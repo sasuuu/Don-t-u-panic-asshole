@@ -1,30 +1,30 @@
 import pygame
 from pygame.locals import *
 from colors import Color
-font_size = 20
-padding = 10
+
 
 class CreatorsMenu(object):
 
-    def __init__(self, main, screen):
-        self.main_menu = main
+    def __init__(self, screen):
         self.screen = screen
         self.__color = Color
         self.screen.fill(self.__color.black)
-        self.buffer = []
-        self.read_text()
-        self.text = []
+        self.__buffer = []
+        self.__read_text()
+        self.__text = []
         self.__start_y = 720
-        self.__start_x = 50
+        self.__start_x = 200
+        self.__font_size = 20
+        self.__font = pygame.font.Font('freesansbold.ttf', self.__font_size)
+        self.__padding = 10
+        self.__delay = 20
 
     def show_creators(self):
         pygame.display.set_caption('Creators of game')
-        font = pygame.font.Font('freesansbold.ttf', font_size)
-        for element in self.buffer:
-            self.text.append(font.render(element, True, self.__color.green, self.__color.black))
+        self.__prepare_text()
 
         while True:
-            for index in range(self.__start_y + len(self.buffer) * (font_size + padding)):
+            for index in range(self.__start_y + len(self.__buffer) * (self.__font_size + self.__padding)):
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         pygame.quit()
@@ -33,20 +33,30 @@ class CreatorsMenu(object):
                         if event.key == K_ESCAPE:
                             return
 
-                self.write_text(index * -1 + self.__start_y)
-                pygame.time.delay(20)
+                self.__write_text(index * -1 + self.__start_y)
+                pygame.time.delay(self.__delay)
                 self.screen.fill(self.__color.black)
             return
 
-    def read_text(self):
+    def __read_text(self):
         with open(r"final_credits.txt", encoding="utf8") as file:
             for line in file:
-                self.buffer.append(line.strip())
+                self.__buffer.append(line.strip())
         file.close()
 
-    def write_text(self, y):
-        for element in self.text:
+    def __write_text(self, y):
+        for element in self.__text:
             self.screen.blit(element, (self.__start_x, y))
-            y += font_size + padding
+            y += self.__font_size + self.__padding
 
         pygame.display.flip()
+
+    def __prepare_text(self):
+        for element in self.__buffer:
+            if element != '':
+                if element[0] == '-':
+                    self.__text.append(self.__font.render(element, True, self.__color.green, self.__color.black))
+                else:
+                    self.__text.append(self.__font.render(element, True, self.__color.white, self.__color.black))
+            else:
+                self.__text.append(self.__font.render(element, True, self.__color.green, self.__color.black))
