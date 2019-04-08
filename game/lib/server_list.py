@@ -1,7 +1,6 @@
 import pygame as py
 import gamestates
 import scroll
-import colors
 from connections import connector
 
 
@@ -12,12 +11,12 @@ class ServerList(object):
         self.__game = game
         self.__server_list = None
         self.__active_server = 0
-        self.__scroll = None
+        self.__scroll = scroll.Scroll(0.25, 0.2, 0.5, 0.6)
 
     def loop(self):
         # if self.__server_list is None:
         #      self.__server_list = self.__connector.get_servers()
-        #      self.__scroll=scroll.Scroll(0.25, 0.2, 0.5, 0.6)
+        #      self.__scroll=
         events = py.event.get()
         for event in events:
             if event.type == py.QUIT:
