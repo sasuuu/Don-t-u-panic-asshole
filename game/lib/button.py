@@ -1,17 +1,24 @@
 import pygame
-from game.lib import colors
+import os
+import json
+
+game_config = None
+file_exists = os.path.isfile("lib/config/game_config.json")
+if file_exists:
+    with open("lib/config/game_config.json") as json_file:
+        game_config = json.load(json_file)
 
 DEFAULT_WIDTH = 100
 DEFAULT_HEIGHT = 50
 DEFAULT_POS_X = 0
 DEFAULT_POS_Y = 0
 DEFAULT_TEXT_SIZE = 34
-FONT_STYLE = "Segoe UI"
+FONT_STYLE = game_config['font'] if game_config is not None else "Segoe UI"
 DEFAULT_BUTTON_BORDER = 0
-DEFAULT_BORDER_COLOR = colors.BLACK
-DEFAULT_HOVER_COLOR = colors.DEFAULT_BUTTON_HOVER_COLOR
-DEFAULT_NOHOVER_COLOR = colors.DEFAULT_BUTTON_NOHOVER_COLOR
-DEFAULT_TEXT_COLOR = colors.BLACK
+DEFAULT_BORDER_COLOR = (0, 0, 0)
+DEFAULT_HOVER_COLOR = (0, 255, 0, 80)
+DEFAULT_NOHOVER_COLOR = (0, 255, 0, 20)
+DEFAULT_TEXT_COLOR = (0, 0, 0)
 
 
 class Button(object):
@@ -61,19 +68,25 @@ class Button(object):
         self.__border_color = border_color
         self.__hover_color = hover_color
         self.__nohover_color = nohover_color
+        self.__button_surface = pygame.Surface((self.__width, self.__height))
+        self.__button_rect = pygame.Rect(self.__pos_x, self.__pos_y, self.__width, self.__height)
 
-    def check_mouse(self, button_rect, events):
+    def __check_mouse(self, events):
         for event in events:
-            if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and button_rect.collidepoint(pygame.mouse.get_pos()):
-                if self.__function is not None:
-                    self.__function()
-            elif button_rect.collidepoint(pygame.mouse.get_pos()):
-                self.__hover = True
-            else:
-                self.__hover = False
+            self.__event_handle(event)
 
-    def run_function(self):
-        self.__function()
+    def __event_handle(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and self.__button_rect.collidepoint(
+                pygame.mouse.get_pos()):
+            self.__run_function()
+        elif self.__button_rect.collidepoint(pygame.mouse.get_pos()):
+            self.__hover = True
+        else:
+            self.__hover = False
+
+    def __run_function(self):
+        if self.__function is not None:
+            self.__function()
 
     def set_text(self, text):
         self.__text = text
@@ -88,28 +101,26 @@ class Button(object):
         self.__hover_color = color
         self.__nohover_color = color
 
-    def get_text(self):
+    def __get_text(self):
         button_text = self.__font_text.render(self.__text, True, self.__text_color)
         button_text_rect = button_text.get_rect()
         button_text_rect.center = (self.__pos_x + self.__width / 2, self.__pos_y + self.__height / 2)
         return button_text, button_text_rect
 
     def draw(self, events):
-        button_surface = pygame.Surface((self.__width, self.__height))
-        button_rect = pygame.Rect(self.__pos_x, self.__pos_y, self.__width, self.__height)
-        self.check_mouse(button_rect, events)
+        self.__check_mouse(events)
         if self.__hover:
-            button_surface.fill(self.__hover_color[0:3])
+            self.__button_surface.fill(self.__hover_color[0:3])
             if len(self.__hover_color) == 4:
-                button_surface.set_alpha(self.__hover_color[3])
+                self.__button_surface.set_alpha(self.__hover_color[3])
         else:
-            button_surface.fill(self.__nohover_color[0:3])
+            self.__button_surface.fill(self.__nohover_color[0:3])
             if len(self.__nohover_color) == 4:
-                button_surface.set_alpha(self.__nohover_color[3])
+                self.__button_surface.set_alpha(self.__nohover_color[3])
         if self.__button_border > 0:
-            pygame.draw.rect(button_surface, self.__border_color, (0, 0, button_surface.get_width(),
-                             button_surface.get_height()), self.__button_border)
+            pygame.draw.rect(self.__button_surface, self.__border_color, (0, 0, self.__button_surface.get_width(),
+                             self.__button_surface.get_height()), self.__button_border)
         display_surface = pygame.display.get_surface()
-        button_text, button_text_rect = self.get_text()
-        display_surface.blit(button_surface,button_rect)
+        button_text, button_text_rect = self.__get_text()
+        display_surface.blit(self.__button_surface,self.__button_rect)
         display_surface.blit(button_text, button_text_rect)

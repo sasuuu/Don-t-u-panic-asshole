@@ -1,5 +1,12 @@
 import pygame
-from game.lib import colors
+import os
+import json
+
+game_config = None
+file_exists = os.path.isfile("lib/config/game_config.json")
+if file_exists:
+    with open("lib/config/game_config.json") as json_file:
+        game_config = json.load(json_file)
 
 DEFAULT_WIDTH = 100
 DEFAULT_HEIGHT = 50
@@ -7,13 +14,13 @@ DEFAULT_POS_X = 0
 DEFAULT_POS_Y = 0
 DEFAULT_TEXT_SIZE = 34
 DEFAULT_LABEL_SIZE = 34
-FONT_STYLE = "Segoe UI"
+FONT_STYLE = game_config['font'] if game_config is not None else "Segoe UI"
 DEFAULT_INPUT_BORDER = 1
-DEFAULT_FOCUS_COLOR = colors.DEFAULT_INPUT_FOCUS_COLOR
-DEFAULT_NOFOCUS_COLOR = colors.DEFAULT_INPUT_NOFOCUS_COLOR
-DEFAULT_LABEL_COLOR = colors.BLACK
-DEFAULT_TEXT_COLOR = colors.BLACK
-DEFAULT_BORDER_COLOR = colors.BLACK
+DEFAULT_FOCUS_COLOR = (0, 255, 0, 80)
+DEFAULT_NOFOCUS_COLOR = (0, 255, 0, 20)
+DEFAULT_LABEL_COLOR = (0, 0, 0)
+DEFAULT_TEXT_COLOR = (0, 0, 0)
+DEFAULT_BORDER_COLOR = (0, 0, 0)
 KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',
         'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l',
         'z', 'x', 'c', 'v', 'b', 'n', 'm',
@@ -73,30 +80,37 @@ class Input(object):
         self.__focus_color = focus_color
         self.__nofocus_color = nofocus_color
 
-    def check_mouse(self, input_rect):
+    def __check_mouse(self, input_rect):
         if pygame.mouse.get_pressed()[0] and input_rect.collidepoint(pygame.mouse.get_pos()):
             self.__active = True
         elif pygame.mouse.get_pressed()[0] and not input_rect.collidepoint(pygame.mouse.get_pos()):
             self.__active = False
 
-    def check_user_input(self, events):
+    def __check_user_input(self, events):
         for event in events:
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_BACKSPACE and len(self.__value) > 0:
-                    self.__value = self.__value[:-1]
-                    if self.__text_start > 0:
-                        self.__text_start = self.__text_start - 1
-                elif event.unicode.lower() in KEYS:
-                    self.__value = self.__value + event.unicode
+            self.__event_handle(event)
+
+    def __event_handle(self, event):
+        if event.type == pygame.KEYDOWN:
+            self.__keydown_handle(event)
+
+    def __keydown_handle(self, event):
+        if event.key == pygame.K_BACKSPACE and len(self.__value) > 0:
+            self.__remove_last()
+        elif event.unicode.lower() in KEYS:
+            self.__value = self.__value + event.unicode
+
+    def __remove_last(self):
+        self.__value = self.__value[:-1]
+        if self.__text_start > 0:
+            self.__text_start = self.__text_start - 1
 
     def get_value(self):
         return self.__value
 
-    def get_text(self):
+    def __get_text(self):
         if self.__is_password:
-            str = ''
-            for i in range(self.__text_start, len(self.__value)):
-                str = str + '*'
+            str = "".join(['*' for i in range(self.__text_start, len(self.__value))])
             input_text = self.__font_text.render(str, True, self.__text_color)
         else:
             input_text = self.__font_text.render(self.__value[self.__text_start:], True, self.__text_color)
@@ -104,7 +118,7 @@ class Input(object):
         input_text_rect.center = (self.__pos_x + self.__width / 2, self.__pos_y + self.__height / 2)
         return input_text, input_text_rect
 
-    def get_label(self):
+    def __get_label(self):
         input_label = self.__font_label.render(self.__label, True, self.__label_color)
         input_label_rect = input_label.get_rect()
         input_label_rect.center = (self.__pos_x + self.__width / 2, self.__pos_y - input_label_rect.height / 2)
@@ -113,12 +127,12 @@ class Input(object):
     def draw(self, events):
         input_surface = pygame.Surface((self.__width, self.__height))
         input_rect = pygame.Rect(self.__pos_x, self.__pos_y, self.__width, self.__height)
-        self.check_mouse(input_rect)
+        self.__check_mouse(input_rect)
         if self.__active:
             input_surface.fill(self.__focus_color[:3])
             if len(self.__focus_color) != 3:
                 input_surface.set_alpha(self.__focus_color[3])
-            self.check_user_input(events)
+            self.__check_user_input(events)
         else:
             input_surface.fill(self.__nofocus_color[:3])
             if len(self.__nofocus_color) != 3:
@@ -127,11 +141,11 @@ class Input(object):
             pygame.draw.rect(input_surface, self.__border_color, (0, 0, input_surface.get_width(),
                              input_surface.get_height()), self.__input_border)
         display_surface = pygame.display.get_surface()
-        input_text, input_text_rect = self.get_text()
+        input_text, input_text_rect = self.__get_text()
         if input_text_rect.width > input_rect.width:
             self.__text_start = self.__text_start + 1
         display_surface.blit(input_surface, input_rect)
         display_surface.blit(input_text, input_text_rect)
         if self.__label is not None:
-            input_label, input_label_rect = self.get_label()
+            input_label, input_label_rect = self.__get_label()
             display_surface.blit(input_label, input_label_rect)

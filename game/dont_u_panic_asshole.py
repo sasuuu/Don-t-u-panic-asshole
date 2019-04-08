@@ -58,22 +58,24 @@ class Game(object):
         self.__clock.tick(self.__settings['fps_max'])
         self.__screen.fill(colors.WHITE)
 
-    def crash(self, msg):
+    @staticmethod
+    def crash(msg):
         print(msg)
         pygame.quit()
         exit(-1)
 
-    def quit(self):
+    @staticmethod
+    def quit():
         print("Bye bye :(")
         pygame.quit()
         exit(0)
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     main = Game()
     main.init()
-    intro_obj = None
-    login_obj = None
+    intro_obj = intro.Intro(main)
+    login_obj = login.Login(main)
     main_menu_obj = None
     server_list_obj = None
     settings_obj = None
@@ -86,24 +88,11 @@ if __name__=="__main__":
         if main.get_state() == gamestates.QUIT:
             main.quit()
         elif main.get_state() == gamestates.INTRO:
-            if intro_obj is None:
-                intro_obj = intro.Intro(main)
             intro_obj.loop()
         elif main.get_state() == gamestates.LOGIN:
-            if login_obj is None:
-                login_obj = login.Login(main)
             login_obj.loop()
         elif main.get_state() == gamestates.MAIN_MENU:
-            # Only for login test
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    main.set_state(gamestates.QUIT)
-            test_text = pygame.font.SysFont("Segoe UI", 60)
-            display_surface = pygame.display.get_surface()
-            test = test_text.render("Main menu", True, colors.BLACK)
-            test_rect = test.get_rect()
-            test_rect.center = (display_surface.get_width() / 2, display_surface.get_height() / 2)
-            display_surface.blit(test, test_rect)
+            pass
         elif main.get_state() == gamestates.SERVER_LIST:
             pass
         elif main.get_state() == gamestates.SETTINGS:

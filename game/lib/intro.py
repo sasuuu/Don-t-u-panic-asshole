@@ -1,18 +1,28 @@
 import pygame
+import json
+import os
 from game.lib import gamestates
 from game.lib import colors
 
-FONT_STYLE = "Segoe UI"
-FONT_SIZE = 0.1
+game_config = None
+file_exists = os.path.isfile("lib/config/game_config.json")
+if file_exists:
+    with open("lib/config/game_config.json") as json_file:
+        game_config = json.load(json_file)
+
+FONT_STYLE = game_config['font'] if game_config is not None else "Segoe UI"
+FONT_SIZE = game_config['intro_font_size'] if game_config is not None else 50
+INTRO_DURATION = game_config['intro_duration'] if game_config is not None else 6000
+TEXT_TO_SHOW = ["Grupa 32", "Presents", "Don\'t u panic a**hole"]
 
 
 class Intro(object):
     def __init__(self, game):
         self.__game = game
         self.__time_start = pygame.time.get_ticks()
-        self.__intro_duration = 6000
-        self.__texts = ["Grupa 32", "Presents", "Don\'t u panic a**hole"]
-        self.__font = pygame.font.SysFont(FONT_STYLE, int(FONT_SIZE * game.get_screen().get_height()))
+        self.__intro_duration = INTRO_DURATION
+        self.__texts = TEXT_TO_SHOW
+        self.__font = pygame.font.SysFont(FONT_STYLE, FONT_SIZE)
         print("Intro initialized")
 
     def loop(self):

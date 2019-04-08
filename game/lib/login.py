@@ -1,17 +1,25 @@
 import pygame
+import os
+import json
 from game.lib import gamestates
 from game.lib import input
 from game.lib import button
 from game.lib import colors
 
-FONT_STYLE = "Segoe UI"
-TEXT_SIZE = 50
+game_config = None
+file_exists = os.path.isfile("lib/config/game_config.json")
+if file_exists:
+    with open("lib/config/game_config.json") as json_file:
+        game_config = json.load(json_file)
+
+FONT_STYLE = game_config['font'] if game_config is not None else "Segoe UI"
+FONT_SIZE = game_config['login_font_size'] if game_config is not None else 50
 
 
 class Login(object):
     def __init__(self, game):
         self.__game = game
-        self.__title = pygame.font.SysFont(FONT_STYLE, TEXT_SIZE)
+        self.__title = pygame.font.SysFont(FONT_STYLE, FONT_SIZE)
         self.__input_login = input.Input(0.25, 0.3, 0.5, 0.1, 'Username')
         self.__input_password = input.Input(0.25, 0.5, 0.5, 0.1, 'Password', is_password=True)
         self.__login_button = button.Button(0.25, 0.65, 0.5, 0.1, text='LOGIN', function=self.login)
@@ -29,8 +37,20 @@ class Login(object):
         login = self.__input_login.get_value()
         password = self.__input_password.get_value()
         # Test login without connection to server
-        print("Try to login with username="+login+" and password="+password)
-        if login == 'test' and password == 'test':
+        print("Try to login")
+        if login == '' and password == '':
+            self.__info.set_text('You need to type something')
+            self.__info.set_color(colors.YELLOW)
+            self.__show_info = True
+        elif login == '':
+            self.__info.set_text('Enter username')
+            self.__info.set_color(colors.YELLOW)
+            self.__show_info = True
+        elif password == '':
+            self.__info.set_text('Enter password')
+            self.__info.set_color(colors.YELLOW)
+            self.__show_info = True
+        elif login == 'test' and password == 'test':
             print("Login success")
             self.__game.set_state(gamestates.MAIN_MENU)
         else:
