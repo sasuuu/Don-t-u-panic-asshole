@@ -6,6 +6,8 @@ import pickle
 import _thread as thread
 from lib import errors_provider as error
 from lib import request_types as request
+from lib.request_entities.login_response import LoginResponse
+from lib.request_entities.server_list_response import ServerList
 
 
 class Server:
@@ -28,14 +30,22 @@ class Server:
     def __get_request_dictionary(self):
         return {
                 request.LOGIN: (lambda data, connection: self.__return_login(data, connection)),
-                request.GET_SERVERS: (lambda data, connection: self.__server_list_request_handler.handle(data, connection)),
+                request.GET_SERVERS: (lambda data, connection: self.__return_servers(data, connection)),
                 request.NOT_FOUND: (lambda data, connection: print('Request not found'))
         }
 
     # Method for testing purpose, will be deleted after adding proper request handlers
     def __return_login(self, data, connection):
         print(f'Received {data}')
-        connection.send(pickle.dumps('{ "response": "True" }'))
+        server_authorization = LoginResponse('True')
+        connection.send(self.__serialize_object(server_authorization))
+
+    def __return_servers(self, data, connection):
+        print(f'Received {data}')
+        names = ["Server Krzemień", "Server Kulig", "Server Merta", "Server Kwilosz", "Server Krzystanek",
+                       "Server Łyś", "Server Król"]
+        server_list = ServerList(names)
+        connection.send(self.__serialize_object(server_list))
 
     def __read_config(self):
         if os.path.isfile(self.__config_file):
@@ -92,6 +102,14 @@ class Server:
         except ValueError as e:
             print(f'Exception in parsing json file {e}')
         return request.NOT_FOUND
+
+    @staticmethod
+    def __serialize_object(sending_object):
+        return pickle.dumps(json.dumps(vars(sending_object)))
+
+    @staticmethod
+    def __deserialize_object(sending_object):
+        return json.loads(pickle.loads(sending_object))
 
 
 if __name__ == '__main__':

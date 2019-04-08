@@ -3,6 +3,7 @@ import pickle
 import json
 from lib import errors_provider
 from lib.connections.request.login_data import Login
+from lib.connections.request.server_list import ServerList
 
 
 class Connector:
@@ -42,8 +43,19 @@ class Connector:
             print(f'Server responded with {server_response}')
             return server_response['response']
         except Exception as e:
-            print(f'Error sending and receiving data from server {e}')
+            print(f'Error sending and receiving data from server (Login) {e}')
         return 'False'
+
+    def get_servers(self):
+        servers_list = ServerList()
+        try:
+            self.__socket.send(self.__serialize_object(servers_list))
+            server_response = self.__deserialize_object(self.__socket.recv(self.__MAX_PACKAGE))
+            print(f'Server responded with {server_response}')
+            return server_response['response']
+        except Exception as e:
+            print(f'Error sending and receiving data from server (Server list) {e}')
+        return []
 
     @staticmethod
     def __serialize_object(sending_object):
@@ -52,3 +64,4 @@ class Connector:
     @staticmethod
     def __deserialize_object(sending_object):
         return json.loads(pickle.loads(sending_object))
+
