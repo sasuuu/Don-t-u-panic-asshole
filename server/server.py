@@ -2,6 +2,7 @@ import socket
 import os
 import sys
 import json
+import pickle
 import _thread as thread
 from lib import errors_provider as error
 from lib import request_types as request
@@ -25,10 +26,15 @@ class Server:
 
     def __get_request_dictionary(self):
         return {
-                request.LOGIN: (lambda x: self.__login_request_handler.handle(x)),
-                request.GET_SERVERS: (lambda x: self.__server_list_request_handler.handle(x)),
-                request.NOT_FOUND: (lambda x: print('Request not found'))
+                request.LOGIN: (lambda data, connection: self.__return_login(data, connection)),
+                request.GET_SERVERS: (lambda data, connection: self.__server_list_request_handler.handle(data, connection)),
+                request.NOT_FOUND: (lambda data, connection: print('Request not found'))
         }
+
+    # Method for testing purpose, will be deleted after adding proper request handlers
+    def __return_login(self, data, connection):
+        print(f'Received {data}')
+        connection.send(pickle.dumps('{ "response": "True" }'))
 
     def __read_config(self):
         if os.path.isfile(self.__config_file):
@@ -66,16 +72,21 @@ class Server:
         self.__connected_users.append([connection, address])
         data = True
         while data:
-            data = connection.recv(self.__MAX_PACKAGE)
-            request_type = self.__get_request_type(data)
-            self.__requests_dictionary[request_type].__call__(data)
+            try:
+                data = connection.recv(self.__MAX_PACKAGE)
+                deserialized_data = pickle.loads(data)
+                request_type = self.__get_request_type(deserialized_data)
+                self.__requests_dictionary[request_type].__call__(deserialized_data, connection)
+            except Exception as e:
+                print(f'Error deserializing data {e}')
         self.__connected_users.remove([connection, address])
         connection.close()
 
     @staticmethod
     def __get_request_type(data):
         try:
-            mapped_to_json = json.loads(data.decode('utf-8'))
+            print(f'Data i Received {data}')
+            mapped_to_json = json.loads(data)
             return mapped_to_json['requestType']
         except ValueError as e:
             print(f'Exception in parsing json file {e}')
