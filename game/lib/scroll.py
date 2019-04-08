@@ -100,8 +100,6 @@ class Scroll(object):
                 scroll_surface.blit(self.__font_text.render(server, antialias, self.__text_color),
                                     (left_margin, top_margin))
             top_margin += self.__text_size
-            if (top_margin + self.__text_size) >= scroll_surface.get_height():  # if next line wont fit into window - stop writing
-                break
 
     @property
     def get_marked_line_index(self):

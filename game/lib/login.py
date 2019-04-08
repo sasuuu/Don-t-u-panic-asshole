@@ -24,7 +24,7 @@ class Login(object):
         print("Try to login with username="+login+" and password="+password)
         if login == 'test' and password == 'test':
             print("Login success")
-            self.__game.set_state(gamestates.SERVER_LIST)
+            self.__game.set_state(gamestates.MAIN_MENU)
         else:
             print("Login failure")
 
