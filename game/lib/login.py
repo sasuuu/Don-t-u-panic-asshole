@@ -1,15 +1,16 @@
 import pygame
 import os
 import json
-from . import gamestates
-from . import input
-from . import button
-from . import colors
+from lib import gamestates
+from lib import input
+from lib import button
+from lib import colors
+from lib.connections import connector
 
 game_config = None
-file_exists = os.path.isfile("lib/config/game_config.json")
+file_exists = os.path.isfile("config/game_config.json")
 if file_exists:
-    with open("lib/config/game_config.json") as json_file:
+    with open("config/game_config.json") as json_file:
         game_config = json.load(json_file)
 
 FONT_STYLE = game_config['font'] if game_config is not None else "Segoe UI"
@@ -37,6 +38,8 @@ class Login(object):
         login = self.__input_login.get_value()
         password = self.__input_password.get_value()
         # Test login without connection to server
+        conn = connector.Connector()
+        response = conn.login_authorize(login, password)
         print("Try to login")
         if login == '' and password == '':
             self.__info.set_text('You need to type something')
@@ -50,12 +53,17 @@ class Login(object):
             self.__info.set_text('Enter password')
             self.__info.set_color(colors.YELLOW)
             self.__show_info = True
-        elif login == 'test' and password == 'test':
+        elif response == 'True':
             print("Login success")
             self.__game.set_state(gamestates.MAIN_MENU)
-        else:
+        elif response == 'False':
             print("Login failure")
             self.__info.set_text('Wrong username or password')
+            self.__info.set_color(colors.RED)
+            self.__show_info = True
+        else:
+            print("Login failure")
+            self.__info.set_text('Cannot connect to server')
             self.__info.set_color(colors.RED)
             self.__show_info = True
 

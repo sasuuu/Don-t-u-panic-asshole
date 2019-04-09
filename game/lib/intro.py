@@ -1,13 +1,13 @@
 import pygame
 import json
 import os
-from . import gamestates
-from . import colors
+from lib import gamestates
+from lib import colors
 
 game_config = None
-file_exists = os.path.isfile("lib/config/game_config.json")
+file_exists = os.path.isfile("config/game_config.json")
 if file_exists:
-    with open("lib/config/game_config.json") as json_file:
+    with open("config/game_config.json") as json_file:
         game_config = json.load(json_file)
 
 FONT_STYLE = game_config['font'] if game_config is not None else "Segoe UI"

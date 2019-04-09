@@ -3,9 +3,9 @@ import os
 import json
 
 game_config = None
-file_exists = os.path.isfile("lib/config/game_config.json")
+file_exists = os.path.isfile("config/game_config.json")
 if file_exists:
-    with open("lib/config/game_config.json") as json_file:
+    with open("config/game_config.json") as json_file:
         game_config = json.load(json_file)
 
 DEFAULT_WIDTH = 100
