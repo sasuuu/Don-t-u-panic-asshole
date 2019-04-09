@@ -1,8 +1,8 @@
 import pygame
 import json
 import os
-from lib import gamestates
-from lib import colors
+from . import gamestates
+from . import colors
 
 game_config = None
 file_exists = os.path.isfile("lib/config/game_config.json")
