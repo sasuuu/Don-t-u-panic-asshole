@@ -28,19 +28,19 @@ class MainMenu(object):
         self.__text_menu_font = pygame.freetype.SysFont(FONT_STYLE, self.__text_menu_height)
         self.__font_game_title = pygame.freetype.SysFont(FONT_STYLE, self.__text_title_height)
         self.__empty_rect = 2
-        self.title_pos_y = self.__screen_size[1] / 9
-        self.title_pos_x = self.__screen_size[0] / 16
-        self.new_line_title = self.__text_title_height + self.__text_title_height / 3
-        self.new_line = self.__text_menu_height + self.__text_menu_height / 2
-        self.button_pos_x = self.__screen_size[0] / 16
-        self.button_pos_y = self.__screen_size[1] / 9 + self.title_pos_y + self.new_line_title
-        self.__button_start = button.Button(self.button_pos_x, self.button_pos_y, 0.2, 0.1, text='Start',
+        self.__title_pos_y = self.__screen_size[1] / 9
+        self.__title_pos_x = self.__screen_size[0] / 16
+        self.__new_line_title = self.__text_title_height + self.__text_title_height / 3
+        self.__new_line = self.__text_menu_height + self.__text_menu_height / 2
+        self.__button_pos_x = self.__screen_size[0] / 16
+        self.__button_pos_y = self.__screen_size[1] / 9 + self.__title_pos_y + self.__new_line_title
+        self.__button_start = button.Button(self.__button_pos_x, self.__button_pos_y, 0.2, 0.1, text='Start',
                                             function=self.choice, arguments="Start")
-        self.__button_setting = button.Button(self.button_pos_x, self.button_pos_y + self.new_line,0.2, 0.1,
+        self.__button_setting = button.Button(self.__button_pos_x, self.__button_pos_y + self.__new_line, 0.2, 0.1,
                                               text='Setting', function=self.choice, arguments="Setting")
-        self.__button_creators = button.Button(self.button_pos_x, self.button_pos_y + 2*self.new_line,0.2, 0.1,
+        self.__button_creators = button.Button(self.__button_pos_x, self.__button_pos_y + 2 * self.__new_line, 0.2, 0.1,
                                                text='Creators', function=self.choice, arguments="Creators")
-        self.__button_exit = button.Button(self.button_pos_x, self.button_pos_y + 3 * self.new_line,0.2, 0.1,
+        self.__button_exit = button.Button(self.__button_pos_x, self.__button_pos_y + 3 * self.__new_line, 0.2, 0.1,
                                            text='Exit', function=self.choice, arguments="Exit")
         print("Menu initialized")
 
@@ -61,11 +61,11 @@ class MainMenu(object):
                 self.__game.set_state(gamestates.LOGIN)
                 return
 
-        self.__font_game_title.render_to(self.__game.get_screen(), (self.title_pos_x, self.title_pos_y), "Dont U",
+        self.__font_game_title.render_to(self.__game.get_screen(), (self.__title_pos_x, self.__title_pos_y), "Don't U",
                                          colors.BLACK)
-        self.__font_game_title.render_to(self.__game.get_screen(), (self.title_pos_x,
-                                                                    self.title_pos_y + self.new_line_title),
-                                         "Panic Asshole", colors.BLACK)
+        self.__font_game_title.render_to(self.__game.get_screen(), (self.__title_pos_x,
+                                                                    self.__title_pos_y + self.__new_line_title),
+                                         "Panic A**hole", colors.BLACK)
         self.__button_start.draw(events)
         self.__button_setting.draw(events)
         self.__button_creators.draw(events)
