@@ -6,7 +6,7 @@ from lib import gamestates
 from lib import intro
 from lib import login
 from lib import colors
-from lib import Main_menu
+from lib import main_menu
 
 
 class Game(object):
@@ -90,7 +90,7 @@ if __name__ == "__main__":
     main.init()
     intro_obj = intro.Intro(main)
     login_obj = login.Login(main)
-    main_menu_obj = Main_menu.MainMenu(main)
+    main_menu_obj = main_menu.MainMenu(main)
     server_list_obj = None
     settings_obj = None
     settings_video_obj = None
