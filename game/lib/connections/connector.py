@@ -44,7 +44,7 @@ class Connector:
             return server_response['response']
         except Exception as e:
             print(f'Error sending and receiving data from server (Login) {e}')
-        return 'False'
+        return False
 
     def get_servers(self):
         servers_list = ServerList()
