@@ -9,7 +9,7 @@ from lib import colors
 from lib import main_menu
 
 
-class Game(object):
+class Game():
     def __init__(self):
         self.__game_title = 'Dont\'t u panic asshole'
         self.__settings = None

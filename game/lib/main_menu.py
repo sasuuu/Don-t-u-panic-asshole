@@ -17,7 +17,7 @@ FONT_SIZE_TITLE = game_config['menu_title_font_size'] if game_config is not None
 FONT_SIZE_MENU = game_config['menu_font_size'] if game_config is not None else 50
 
 
-class MainMenu(object):
+class MainMenu():
     def __init__(self, game):
         self.__game = game
         self.__screen_size = self.__game.get_screen().get_size()
