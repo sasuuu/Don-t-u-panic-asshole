@@ -7,9 +7,9 @@ from lib import gamestates
 from lib import button
 
 game_config = None
-file_exists = os.path.isfile("lib/config/game_config.json")
+file_exists = os.path.isfile("config/game_config.json")
 if file_exists:
-    with open("lib/config/game_config.json") as json_file:
+    with open("config/game_config.json") as json_file:
         game_config = json.load(json_file)
 
 FONT_STYLE = game_config['font'] if game_config is not None else "Segoe UI"
@@ -19,8 +19,6 @@ FONT_SIZE_MENU = game_config['menu_font_size'] if game_config is not None else 5
 
 class MainMenu(object):
     def __init__(self, game):
-
-        pygame.init()
         self.__game = game
         self.__screen_size = self.__game.get_screen().get_size()
         self.__text_menu_height = FONT_SIZE_MENU
@@ -33,7 +31,7 @@ class MainMenu(object):
         self.__new_line_title = self.__text_title_height + self.__text_title_height / 3
         self.__new_line = self.__text_menu_height + self.__text_menu_height / 2
         self.__button_pos_x = self.__screen_size[0] / 16
-        self.__button_pos_y = self.__screen_size[1] / 9 + self.__title_pos_y + self.__new_line_title
+        self.__button_pos_y = self.__screen_size[1] / 9 + self.__title_pos_y + 2 * self.__new_line_title
         self.__button_start = button.Button(self.__button_pos_x, self.__button_pos_y, 0.2, 0.1, text='Start',
                                             function=self.choice, arguments="Start")
         self.__button_setting = button.Button(self.__button_pos_x, self.__button_pos_y + self.__new_line, 0.2, 0.1,
@@ -70,10 +68,3 @@ class MainMenu(object):
         self.__button_setting.draw(events)
         self.__button_creators.draw(events)
         self.__button_exit.draw(events)
-        # rect for img only for test
-        rect_pos_x = self.__screen_size[0] - self.__screen_size[0] / 3
-        rect_pos_y = self.__screen_size[1] - self.__screen_size[1] / 4 * 3
-        rect_width = self.__screen_size[0] / 4
-        rect_height = self.__screen_size[0] / 3
-        rectangle = (rect_pos_x, rect_pos_y, rect_width, rect_height)
-        pygame.draw.rect(self.__game.get_screen(), colors.BLACK, rectangle, self.__empty_rect)
