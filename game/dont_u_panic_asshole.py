@@ -1,10 +1,10 @@
 import pygame
 import json
 import os
-from game.lib import gamestates
-from game.lib import intro
-from game.lib import login
-from game.lib import colors
+from lib import gamestates
+from lib import intro
+from lib import login
+from lib import colors
 
 
 class Game(object):
@@ -15,9 +15,16 @@ class Game(object):
         self.__state = None
         self.__clock = None
         self.__screen = None
+        self.__events = None
 
     def get_screen(self):
         return self.__screen
+
+    def get_events(self):
+        return self.__events
+
+    def update_events(self):
+        self.__events = pygame.event.get()
 
     def get_settings(self):
         file_exists = os.path.isfile(self.__settings_file)
@@ -49,6 +56,11 @@ class Game(object):
 
     def get_state(self):
         return self.__state
+
+    def handle_quit_event(self):
+        for event in self.__events:
+            if event.type == pygame.QUIT:
+                self.set_state(gamestates.QUIT)
 
     def set_state(self, state):
         self.__state = state
@@ -85,6 +97,8 @@ if __name__ == "__main__":
     creators_obj = None
     game_obj = None
     while True:
+        main.update_events()
+        main.handle_quit_event()
         if main.get_state() == gamestates.QUIT:
             main.quit()
         elif main.get_state() == gamestates.INTRO:

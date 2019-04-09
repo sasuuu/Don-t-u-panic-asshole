@@ -1,10 +1,10 @@
 import pygame
 import os
 import json
-from game.lib import gamestates
-from game.lib import input
-from game.lib import button
-from game.lib import colors
+from lib import gamestates
+from lib import input
+from lib import button
+from lib import colors
 
 game_config = None
 file_exists = os.path.isfile("lib/config/game_config.json")
@@ -60,11 +60,8 @@ class Login(object):
             self.__show_info = True
 
     def loop(self):
-        events = pygame.event.get()
+        events = self.__game.get_events()
         display_surface = pygame.display.get_surface()
-        for event in events:
-            if event.type == pygame.QUIT:
-                self.__game.set_state(gamestates.QUIT)
         title = self.__title.render("Don\'t u panic a**hole", True, colors.BLACK)
         title_rect = title.get_rect()
         title_rect.center = (display_surface.get_width() / 2, display_surface.get_height() * 0.1)
