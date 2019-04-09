@@ -30,7 +30,7 @@ class Login(object):
         self.__show_info = True
         print("Login initialized")
 
-    def hide_info(self, *args):
+    def hide_info(self):
         self.__show_info = False
         self.__info.set_text('')
 
