@@ -25,7 +25,7 @@ class Button(object):
     def __init__(self, pos_x=DEFAULT_POS_X, pos_y=DEFAULT_POS_Y, width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT, text='',
                  text_size=DEFAULT_TEXT_SIZE, text_color=DEFAULT_TEXT_COLOR,
                  button_border=DEFAULT_BUTTON_BORDER, hover_color=DEFAULT_HOVER_COLOR,
-                 nohover_color=DEFAULT_NOHOVER_COLOR, border_color=DEFAULT_BORDER_COLOR, function=None, args=()):
+                 nohover_color=DEFAULT_NOHOVER_COLOR, border_color=DEFAULT_BORDER_COLOR, function=None, args=None):
         if pos_x < 1:
             suf = pygame.display.get_surface()
             if suf is not None:
@@ -86,8 +86,10 @@ class Button(object):
             self.__hover = False
 
     def __run_function(self):
-        if self.__function is not None:
+        if self.__function is not None and self.__args is not None:
             self.__function(self.__args)
+        elif self.__function is not None and self.__args is None:
+            self.__function()
 
     def set_text(self, text):
         self.__text = text
