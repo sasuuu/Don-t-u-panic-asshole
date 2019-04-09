@@ -5,6 +5,7 @@ from game.lib import gamestates
 from game.lib import intro
 from game.lib import login
 from game.lib import colors
+from game.lib import Main_menu
 
 
 class Game(object):
@@ -39,7 +40,7 @@ class Game(object):
             display_mode = 0
         self.__clock = pygame.time.Clock()
         pygame.init()
-        self.__screen = pygame.display.set_mode((width,height),display_mode)
+        self.__screen = pygame.display.set_mode((width, height), display_mode)
         pygame.display.set_caption(self.__game_title)
         if self.__settings['intro_enable']:
             self.__state = gamestates.INTRO
@@ -76,7 +77,7 @@ if __name__ == "__main__":
     main.init()
     intro_obj = intro.Intro(main)
     login_obj = login.Login(main)
-    main_menu_obj = None
+    main_menu_obj = Main_menu.MainMenu(main)
     server_list_obj = None
     settings_obj = None
     settings_video_obj = None
@@ -92,7 +93,7 @@ if __name__ == "__main__":
         elif main.get_state() == gamestates.LOGIN:
             login_obj.loop()
         elif main.get_state() == gamestates.MAIN_MENU:
-            pass
+            main_menu_obj.loop()
         elif main.get_state() == gamestates.SERVER_LIST:
             pass
         elif main.get_state() == gamestates.SETTINGS:

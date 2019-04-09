@@ -25,7 +25,7 @@ class Button(object):
     def __init__(self, pos_x=DEFAULT_POS_X, pos_y=DEFAULT_POS_Y, width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT, text='',
                  text_size=DEFAULT_TEXT_SIZE, text_color=DEFAULT_TEXT_COLOR,
                  button_border=DEFAULT_BUTTON_BORDER, hover_color=DEFAULT_HOVER_COLOR,
-                 nohover_color=DEFAULT_NOHOVER_COLOR, border_color=DEFAULT_BORDER_COLOR, function=None):
+                 nohover_color=DEFAULT_NOHOVER_COLOR, border_color=DEFAULT_BORDER_COLOR, function=None, arguments=None):
         if pos_x < 1:
             suf = pygame.display.get_surface()
             if suf is not None:
@@ -70,6 +70,7 @@ class Button(object):
         self.__nohover_color = nohover_color
         self.__button_surface = pygame.Surface((self.__width, self.__height))
         self.__button_rect = pygame.Rect(self.__pos_x, self.__pos_y, self.__width, self.__height)
+        self.__arguments = arguments
 
     def __check_mouse(self, events):
         for event in events:
@@ -86,7 +87,10 @@ class Button(object):
 
     def __run_function(self):
         if self.__function is not None:
-            self.__function()
+            if self.__arguments is not None:
+                self.__function(self.__arguments)
+            else:
+                self.__function()
 
     def set_text(self, text):
         self.__text = text
