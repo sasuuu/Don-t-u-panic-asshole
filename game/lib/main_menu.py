@@ -33,13 +33,13 @@ class MainMenu():
         self.__button_pos_x = self.__screen_size[0] / 16
         self.__button_pos_y = self.__screen_size[1] / 9 + self.__title_pos_y + 2 * self.__new_line_title
         self.__button_start = button.Button(self.__button_pos_x, self.__button_pos_y, 0.2, 0.1, text='Start',
-                                            function=self.choice, arguments="Start")
+                                            function=self.choice, args="Start")
         self.__button_setting = button.Button(self.__button_pos_x, self.__button_pos_y + self.__new_line, 0.2, 0.1,
-                                              text='Setting', function=self.choice, arguments="Setting")
+                                              text='Setting', function=self.choice, args="Setting")
         self.__button_creators = button.Button(self.__button_pos_x, self.__button_pos_y + 2 * self.__new_line, 0.2, 0.1,
-                                               text='Creators', function=self.choice, arguments="Creators")
+                                               text='Creators', function=self.choice, args="Creators")
         self.__button_exit = button.Button(self.__button_pos_x, self.__button_pos_y + 3 * self.__new_line, 0.2, 0.1,
-                                           text='Exit', function=self.choice, arguments="Exit")
+                                           text='Exit', function=self.choice, args="Exit")
         print("Menu initialized")
 
     def choice(self, text):
