@@ -2,9 +2,9 @@ import pygame
 import pygame.freetype
 import json
 import os
-from game.lib import colors
-from game.lib import gamestates
-from game.lib import button
+from lib import colors
+from lib import gamestates
+from lib import button
 
 game_config = None
 file_exists = os.path.isfile("lib/config/game_config.json")
@@ -55,10 +55,11 @@ class MainMenu(object):
             self.__game.set_state(gamestates.QUIT)
 
     def loop(self):
-        events = pygame.event.get()
+        events = self.__game.get_events()
         for event in events:
-            if event.type == pygame.QUIT:
-                self.__game.set_state(gamestates.QUIT)
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                self.__game.set_state(gamestates.LOGIN)
+                return
 
         self.__font_game_title.render_to(self.__game.get_screen(), (self.title_pos_x, self.title_pos_y), "Dont U",
                                          colors.BLACK)
