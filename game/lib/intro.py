@@ -1,8 +1,8 @@
 import pygame
 import json
 import os
-from game.lib import gamestates
-from game.lib import colors
+from lib import gamestates
+from lib import colors
 
 game_config = None
 file_exists = os.path.isfile("lib/config/game_config.json")
@@ -26,11 +26,9 @@ class Intro(object):
         print("Intro initialized")
 
     def loop(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.__game.set_state(gamestates.QUIT)
-                return
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+        events = self.__game.get_events()
+        for event in events:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 self.__game.set_state(gamestates.LOGIN)
                 return
         time_from_start = pygame.time.get_ticks() - self.__time_start
