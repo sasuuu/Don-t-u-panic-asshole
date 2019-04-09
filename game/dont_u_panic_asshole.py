@@ -13,7 +13,7 @@ class Game():
     def __init__(self):
         self.__game_title = 'Dont\'t u panic asshole'
         self.__settings = None
-        self.__settings_file = "settings.json"
+        self.__settings_file = "./settings.json"
         self.__state = None
         self.__clock = None
         self.__screen = None
