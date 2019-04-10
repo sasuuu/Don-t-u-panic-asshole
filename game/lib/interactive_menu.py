@@ -14,7 +14,7 @@ DEFAULT_CONTENT = ['This is default content. ', 'If you are seeing this, ', 'it 
                    'and server list,', "couldn't be downloaded."]
 
 
-class Scroll(object):
+class InteractiveMenu:
     def __init__(self, pos_x=DEFAULT_POS_X, pos_y=DEFAULT_POS_Y, width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT,
                  content=DEFAULT_CONTENT, text_size=DEFAULT_TEXT_SIZE, text_color=DEFAULT_TEXT_COLOR,
                  marked_text_color=DEFAULT_MARKED_COLOR, background_color=DEFAULT_BACKGROUND_COLOR):
@@ -84,15 +84,15 @@ class Scroll(object):
         display_surface.blit(scroll_surface, scroll_rectangle)
 
     def fill_surface(self, scroll_surface):
-        temp = int(self.__marked_line_index/self.__amount_to_print)  # which elements should be printed
-        last_to_print = temp*self.__amount_to_print+self.__amount_to_print \
-            if temp*self.__amount_to_print+self.__amount_to_print <= len(self.__content)\
+        page = int(self.__marked_line_index/self.__amount_to_print)  # which page of elements should be printed
+        last_to_print = page*self.__amount_to_print+self.__amount_to_print \
+            if page*self.__amount_to_print+self.__amount_to_print <= len(self.__content)\
             else len(self.__content)  # last element to print
-        list_to_print = [self.__content[i] for i in range(temp*self.__amount_to_print, last_to_print)]  # elements to print
+        list_to_print = [self.__content[i] for i in range(page*self.__amount_to_print, last_to_print)]  # elements to print
         top_margin = self.__top_margin
         left_margin = 5
         antialias = True
-        for index, server in enumerate(list_to_print, temp*self.__amount_to_print):
+        for index, server in enumerate(list_to_print, page*self.__amount_to_print):
             if index == self.__marked_line_index:
                 scroll_surface.blit(self.__font_text.render(server, antialias, self.__marked_line_color),
                                     (left_margin, top_margin))
