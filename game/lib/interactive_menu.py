@@ -1,12 +1,20 @@
 import pygame
-from game.lib import colors
+from lib import colors
+import json
+import os
+
+game_config = None
+file_exists = os.path.isfile("game/config/game_config.json")
+if file_exists:
+    with open("config/game_config.json") as json_file:
+        game_config = json.load(json_file)
+FONT_STYLE = game_config['font'] if game_config is not None else "Segoe UI"
+FONT_SIZE = game_config['interactive_menu_font_size'] if game_config is not None else 25
 
 DEFAULT_WIDTH = 100
 DEFAULT_HEIGHT = 200
 DEFAULT_POS_X = 0
 DEFAULT_POS_Y = 0
-DEFAULT_TEXT_SIZE = 25
-FONT_STYLE = "Segoe UI"
 DEFAULT_TEXT_COLOR = colors.BLACK
 DEFAULT_MARKED_COLOR = colors.YELLOW
 DEFAULT_BACKGROUND_COLOR = colors.GRAY
@@ -16,7 +24,7 @@ DEFAULT_CONTENT = ['This is default content. ', 'If you are seeing this, ', 'it 
 
 class InteractiveMenu:
     def __init__(self, pos_x=DEFAULT_POS_X, pos_y=DEFAULT_POS_Y, width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT,
-                 content=DEFAULT_CONTENT, text_size=DEFAULT_TEXT_SIZE, text_color=DEFAULT_TEXT_COLOR,
+                 content=DEFAULT_CONTENT, text_size=FONT_SIZE, text_color=DEFAULT_TEXT_COLOR,
                  marked_text_color=DEFAULT_MARKED_COLOR, background_color=DEFAULT_BACKGROUND_COLOR):
         if pos_x < 1:
             suf = pygame.display.get_surface()
@@ -56,12 +64,12 @@ class InteractiveMenu:
         self.__background_color = background_color
         self.__content = content
         self.__text_size = text_size
-        self.__marked_line_index = 0   # index to currently marked line
+        self.__marked_line_index = 0
         self.__font_text = pygame.font.SysFont(FONT_STYLE, self.__text_size)
-        self.__top_margin = 10
+        self.__top_margin = game_config['interactive_menu_top_margin'] if game_config is not None else 10
         self.__amount_to_print = int((self.__height-self.__top_margin)/self.__text_size)
 
-    def check(self, scroll_surface, events):
+    def handle_event(self, scroll_surface, events):
         for event in events:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
                 if self.__marked_line_index != 0:
@@ -75,24 +83,28 @@ class InteractiveMenu:
                     pygame.display.flip()
 
     def draw(self, events):
-        scroll_surface = pygame.Surface((self.__width, self.__height))
-        scroll_surface.fill(self.__background_color)
-        scroll_rectangle = pygame.Rect(self.__pos_x, self.__pos_y, self.__width, self.__height)
+        menu_surface = pygame.Surface((self.__width, self.__height))
+        menu_surface.fill(self.__background_color)
+        menu_rectangle = pygame.Rect(self.__pos_x, self.__pos_y, self.__width, self.__height)
         display_surface = pygame.display.get_surface()
-        self.check(scroll_surface, events)
-        self.fill_surface(scroll_surface)
-        display_surface.blit(scroll_surface, scroll_rectangle)
+        self.handle_event(menu_surface, events)
+        self.fill_surface(menu_surface)
+        display_surface.blit(menu_surface, menu_rectangle)
 
     def fill_surface(self, scroll_surface):
-        page = int(self.__marked_line_index/self.__amount_to_print)  # which page of elements should be printed
-        last_to_print = page*self.__amount_to_print+self.__amount_to_print \
-            if page*self.__amount_to_print+self.__amount_to_print <= len(self.__content)\
-            else len(self.__content)  # last element to print
-        list_to_print = [self.__content[i] for i in range(page*self.__amount_to_print, last_to_print)]  # elements to print
+        printed_page = int(self.__marked_line_index/self.__amount_to_print)
+
+        if printed_page*self.__amount_to_print+self.__amount_to_print <= len(self.__content):
+            last_to_print = printed_page * self.__amount_to_print + self.__amount_to_print
+        else:
+            last_to_print = len(self.__content)
+
+        list_to_print = [self.__content[i] for i in range(printed_page*self.__amount_to_print, last_to_print)]
         top_margin = self.__top_margin
-        left_margin = 5
+        left_margin = game_config['interactive_menu_left_margin'] if game_config is not None else 10
         antialias = True
-        for index, server in enumerate(list_to_print, page*self.__amount_to_print):
+
+        for index, server in enumerate(list_to_print, printed_page*self.__amount_to_print):
             if index == self.__marked_line_index:
                 scroll_surface.blit(self.__font_text.render(server, antialias, self.__marked_line_color),
                                     (left_margin, top_margin))
