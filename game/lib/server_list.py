@@ -17,7 +17,7 @@ FONT_SIZE = game_config['intro_font_size'] if game_config is not None else 50
 
 
 class ServerList:
-    def __init__(self, game):
+    def __init__(self, game, connector):
         self.__menu_title = "Servers"
         self.__connector = connector
         self.__game = game

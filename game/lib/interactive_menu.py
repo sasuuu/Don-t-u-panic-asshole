@@ -8,8 +8,8 @@ file_exists = os.path.isfile("game/config/game_config.json")
 if file_exists:
     with open("config/game_config.json") as json_file:
         game_config = json.load(json_file)
-FONT_STYLE = game_config['font'] if game_config is not None else "Segoe UI"
-FONT_SIZE = game_config['interactive_menu_font_size'] if game_config is not None else 25
+DEFAULT_FONT_STYLE = game_config['font'] if game_config is not None else "Segoe UI"
+DEFAULT_FONT_SIZE = game_config['interactive_menu_font_size'] if game_config is not None else 25
 
 DEFAULT_WIDTH = 100
 DEFAULT_HEIGHT = 200
@@ -24,7 +24,7 @@ DEFAULT_CONTENT = ['This is default content. ', 'If you are seeing this, ', 'it 
 
 class InteractiveMenu:
     def __init__(self, pos_x=DEFAULT_POS_X, pos_y=DEFAULT_POS_Y, width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT,
-                 content=DEFAULT_CONTENT, text_size=FONT_SIZE, text_color=DEFAULT_TEXT_COLOR,
+                 content=DEFAULT_CONTENT, text_size=DEFAULT_FONT_SIZE, text_color=DEFAULT_TEXT_COLOR,
                  marked_text_color=DEFAULT_MARKED_COLOR, background_color=DEFAULT_BACKGROUND_COLOR):
         if pos_x < 1:
             suf = pygame.display.get_surface()
@@ -65,7 +65,7 @@ class InteractiveMenu:
         self.__content = content
         self.__text_size = text_size
         self.__marked_line_index = 0
-        self.__font_text = pygame.font.SysFont(FONT_STYLE, self.__text_size)
+        self.__font_text = pygame.font.SysFont(DEFAULT_FONT_STYLE, self.__text_size)
         self.__top_margin = game_config['interactive_menu_top_margin'] if game_config is not None else 10
         self.__amount_to_print = int((self.__height-self.__top_margin)/self.__text_size)
 
