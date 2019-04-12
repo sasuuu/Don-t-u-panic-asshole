@@ -1,6 +1,7 @@
 import socket
 import pickle
 import json
+from lib import errors_provider
 from lib.connections.request.login_data import Login
 from lib.connections.request.server_list import ServerList
 

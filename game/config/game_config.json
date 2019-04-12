@@ -2,5 +2,7 @@
   "font": "Segoe UI",
   "intro_font_size" : 120,
   "intro_duration" : 6000,
-  "login_font_size" : 50
+  "login_font_size" : 50,
+  "menu_title_font_size": 70,
+  "menu_font_size": 50
 }
