@@ -5,7 +5,6 @@ import os
 from lib import gamestates
 from lib import interactive_menu
 from lib import colors
-from lib.connections import connector
 
 game_config = None
 file_exists = os.path.isfile("game/config/game_config.json")
@@ -29,11 +28,7 @@ class ServerList:
     def loop(self):
         events = self.__game.get_events()
         for event in events:
-            if event.type == pygame.QUIT:
-                print('quit')
-                self.__game.set_state(gamestates.QUIT)
-                return
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 self.__game.set_state(gamestates.MAIN_MENU)
                 return
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
