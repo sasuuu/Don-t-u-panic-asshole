@@ -7,9 +7,11 @@ from lib import intro
 from lib import login
 from lib import colors
 from lib import main_menu
+from lib import server_list
+from lib.connections import connector
 
 
-class Game():
+class Game:
     def __init__(self):
         self.__game_title = 'Dont\'t u panic asshole'
         self.__settings = None
@@ -88,10 +90,11 @@ class Game():
 if __name__ == "__main__":
     main = Game()
     main.init()
+    conn = connector.Connector()
     intro_obj = intro.Intro(main)
     login_obj = login.Login(main)
     main_menu_obj = main_menu.MainMenu(main)
-    server_list_obj = None
+    server_list_obj = server_list.ServerList(main, conn)
     settings_obj = None
     settings_video_obj = None
     settings_controls_obj = None
@@ -110,7 +113,7 @@ if __name__ == "__main__":
         elif main.get_state() == gamestates.MAIN_MENU:
             main_menu_obj.loop()
         elif main.get_state() == gamestates.SERVER_LIST:
-            pass
+            server_list_obj.loop()
         elif main.get_state() == gamestates.SETTINGS:
             pass
         elif main.get_state() == gamestates.SETTINGS_VIDEO:
