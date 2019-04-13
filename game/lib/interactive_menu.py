@@ -75,12 +75,10 @@ class InteractiveMenu:
                 if self.__marked_line_index != 0:
                     self.__marked_line_index = self.__marked_line_index - 1
                     self.fill_surface(scroll_surface)
-                    pygame.display.flip()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
                 if self.__marked_line_index != (len(self.__content)-1):
                     self.__marked_line_index = self.__marked_line_index + 1
                     self.fill_surface(scroll_surface)
-                    pygame.display.flip()
 
     def draw(self, events):
         menu_surface = pygame.Surface((self.__width, self.__height))
