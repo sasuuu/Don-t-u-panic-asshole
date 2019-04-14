@@ -34,8 +34,9 @@ class CreatorsMenu(object):
 
     def loop(self):
 
+        events = self.__game.get_events()
         for index in range(self.__start_y + len(self.__buffer) * (FONT_SIZE + PADDING)):
-            for event in pygame.event.get():
+            for event in events:
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     self.__game.set_state(gamestates.MAIN_MENU)
                     return

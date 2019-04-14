@@ -101,7 +101,6 @@ if __name__ == "__main__":
     settings_video_obj = None
     settings_controls_obj = None
     settings_audio_obj = None
-    creators_obj = None
     game_obj = None
     while True:
         main.update_events()
