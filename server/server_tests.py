@@ -1,3 +1,5 @@
+# basic test client sending good and bad data
+
 import json
 import os
 import socket

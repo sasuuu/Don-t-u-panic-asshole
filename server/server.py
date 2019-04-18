@@ -9,6 +9,7 @@ from lib.request_entities import request_fabric as request_fabric
 from lib import errors_provider as error
 from lib import request_types as request
 
+
 class Server(object):
 
     def __init__(self):
@@ -86,10 +87,14 @@ class Client(Thread):
                 request_type = self.__get_request_type(deserialized_data)
                 handler = self.__requests_dictionary[request_type]
                 respond = handler(deserialized_data, self.__connection)
-                # print('DEBUG',type(respond), ' ', respond)
+                print('DEBUG', type(respond), ' ', respond)
                 self.__connection.send(self.__serialize_object(respond))
+            except KeyError:
+                print('request handler not founded')
+                self.__connection.send(self.__serialize_object({'respond': 'request cannot be handled}'}))
             except Exception as e:
-                print(f'Error deserializing data {e}')
+                print(f'Error deserializing data {type(e)} {e}')
+                break
         print(f'close connection {self.__connection}')
         self.__connection.close()
         self.__server.notify_end_connection(self)
@@ -100,13 +105,13 @@ class Client(Thread):
             print(f'Data i Received {data}')
             # mapped_to_json = json.loads(data)
             return data['requestType']
-        except ValueError as e:
+        except KeyError as e:
             print(f'Exception in parsing json file {e}')
-        return request.NOT_FOUND
+            return request.NOT_FOUND
 
     @staticmethod
     def __serialize_object(sending_object):
-        return pickle.dumps(json.dumps(vars(sending_object)))
+        return pickle.dumps(json.dumps(sending_object))
 
     @staticmethod
     def __deserialize_object(sending_object):
