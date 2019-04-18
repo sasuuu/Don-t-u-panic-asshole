@@ -18,6 +18,7 @@ FONT_SIZE = game_config['creators_font_size'] if game_config is not None else 20
 PADDING = game_config['creators_padding'] if game_config is not None else 10
 FONT_STYLE = game_config['creators_font_style'] if game_config is not None else "freesansbold.ttf"
 LEFT_PADDING = 6
+VELOCITY = 180
 
 
 class CreatorsMenu(object):
@@ -34,7 +35,7 @@ class CreatorsMenu(object):
         self.__font = pygame.font.Font(FONT_STYLE, FONT_SIZE)
         self.__end_loop_condition = 0
         self.__prepare_text()
-        self.__index = 0
+        self.__position = 0
 
     def loop(self):
         events = self.__game.get_events()
@@ -44,10 +45,12 @@ class CreatorsMenu(object):
                 self.__game.set_state(gamestates.MAIN_MENU)
                 return
 
-        if self.__index < self.__end_loop_condition:
+        delta_time = self.__game.get_delta_time()
+        if self.__position < self.__end_loop_condition:
+            time = delta_time/1000.0
+            self.__position += (time * VELOCITY)
             self.__game.get_screen().fill(colors.BLACK)
-            self.__write_text(self.__start_y - self.__index)
-            self.__index += 1
+            self.__write_text(self.__start_y - self.__position)
         else:
             self.__reset_state()
             self.__game.set_state(gamestates.MAIN_MENU)
@@ -81,4 +84,4 @@ class CreatorsMenu(object):
         self.__end_loop_condition = self.__screen_size[1] + line_count * (FONT_SIZE + PADDING)
 
     def __reset_state(self):
-        self.__index = 0
+        self.__position = 0
