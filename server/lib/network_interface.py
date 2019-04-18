@@ -11,6 +11,7 @@ from lib import request_handler as req
 
 
 class Server(object):
+
     def __init__(self, request_handlers_chain):
         self.__IP_ADDRESS = None
         self.__PORT_NUMBER = None
@@ -64,7 +65,7 @@ class Server(object):
 
 
 class Connection(Thread):
-    def __init__(self, connection, address, request_handlers_chain, server=None):
+    def __init__(self, connection, address, server=None):
         Thread.__init__(self)
         self.__connection = connection
         self.__address = address
@@ -84,36 +85,24 @@ class Connection(Thread):
         print(f'User disconnect {self.__address}')
         self.__server.notify_end_connection(self)
 
-    def send_data(self, data: dict):
-        bytes_to_send = self.__json_to_byte(data)
-        self.__connection.send(bytes_to_send)
-
-    def __handle_data(self, data) -> bytes:
+    @staticmethod
+    def __get_request_type(data):
         try:
-            json_data = self.__byte_to_json(data)
-            respond_to_parse = self.__request_handlers_chain.handle(json_data)
-            respond_bytes = self.__json_to_byte(respond_to_parse)
-        except (JSONDecodeError, UnicodeDecodeError):
-            respond_to_parse = req.respond_error('decode error')
-            respond_bytes = self.__json_to_byte(respond_to_parse)
-        return respond_bytes
+            print(f'Data i Received {data}')
+            mapped_to_json = json.loads(data)
+            return mapped_to_json['requestType']
+        except ValueError as e:
+            print(f'Exception in parsing json file {e}')
+        return request.NOT_FOUND
 
     @staticmethod
-    def __byte_to_json(data: bytes) -> dict:
-        request_string = data.decode('utf-8')
-        # print('DEBUG: request string: ', request_string)  # debug info
-        json_data = json.loads(request_string)
-        # print('DEBUG: json data: ', json_data)  # debug info
-        return json_data
+    def __serialize_object(sending_object):
+        return pickle.dumps(json.dumps(vars(sending_object)))
 
     @staticmethod
-    def __json_to_byte(respond_to_parse: dict) -> bytes:
-        # print('DEBUG: respond_to_parse: ', respond_to_parse)  # debug info
-        respond_str = json.dumps(respond_to_parse)
-        respond_bytes = str.encode(respond_str, 'utf-8')
-        return respond_bytes
+    def __deserialize_object(sending_object):
+        return json.loads(pickle.loads(sending_object))
 
 
-if __name__ == "__main__":
-    __testChain = req.EchoRequestHandler(req.PingRequestHandler(req.ServerListRequestHandler()))
-    __server = Server(__testChain)
+if __name__ == '__main__':
+    __server = Server()
