@@ -3,7 +3,7 @@ import os
 import sys
 import json
 import pickle
-import _thread as thread
+from threading import Thread
 from lib import errors_provider as error
 from lib import request_types as request
 from lib.request_entities.login_response import LoginResponse

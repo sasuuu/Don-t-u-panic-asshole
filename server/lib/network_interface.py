@@ -84,6 +84,10 @@ class Connection(Thread):
         print(f'User disconnect {self.__address}')
         self.__server.notify_end_connection(self)
 
+    def send_data(self, data: dict):
+        bytes_to_send = self.__json_to_byte(data)
+        self.__connection.send(bytes_to_send)
+
     def __handle_data(self, data) -> bytes:
         try:
             json_data = self.__byte_to_json(data)
@@ -95,7 +99,7 @@ class Connection(Thread):
         return respond_bytes
 
     @staticmethod
-    def __byte_to_json(data):
+    def __byte_to_json(data: bytes) -> dict:
         request_string = data.decode('utf-8')
         # print('DEBUG: request string: ', request_string)  # debug info
         json_data = json.loads(request_string)
@@ -103,7 +107,7 @@ class Connection(Thread):
         return json_data
 
     @staticmethod
-    def __json_to_byte(respond_to_parse):
+    def __json_to_byte(respond_to_parse: dict) -> bytes:
         # print('DEBUG: respond_to_parse: ', respond_to_parse)  # debug info
         respond_str = json.dumps(respond_to_parse)
         respond_bytes = str.encode(respond_str, 'utf-8')

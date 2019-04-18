@@ -1,5 +1,5 @@
 from abc import abstractmethod, ABC
-from lib.request_type import RequestType
+from server.lib.types_of_messages import RequestType
 
 
 def respond_error(message: str):

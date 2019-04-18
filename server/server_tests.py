@@ -1,18 +1,11 @@
 import json
 import os
 import socket
+import pickle
 from time import sleep
 
-requests_to_server = [{'type': 4}, {'type': 3}, {'type': 2}, {'type': 1, "message": "hello world"}, {'type': 1},
-                      {'type': 1, 'error_data': 'xD'}]
-
-
-def request_to_server(request_to_parse):
-    request_str = json.dumps(request_to_parse)
-    request_bytes = str.encode(request_str)
-    print('->', request_bytes)
-    return request_bytes
-
+requests_to_server = [{'requestType': '2'}, {'requestType': '1', "message": "hello world"}, {'requestType': '1'},
+                      {'requestType': '1', 'error_data': 'xD'}]
 
 config_file = "config/server_config.json"
 if os.path.isfile(config_file):
@@ -27,13 +20,10 @@ print(f'connecting to {IP_ADDRESS} port {PORT_NUMBER}')
 sock.connect(server_address)
 
 for request in requests_to_server:
-    sock.send(request_to_server(request))
-    print('<-', sock.recv(1024))
+    to_send = pickle.dumps(json.dumps(request))
+    sock.send(to_send)
+    print('->', to_send)
+    print('<-', json.loads(pickle.loads(sock.recv(262144))))
     sleep(1)
-
-request_bytes = b'bad encode data'
-print('->', request_bytes)
-sock.send(request_bytes)
-print('<-', sock.recv(1024))
 
 sock.close()
