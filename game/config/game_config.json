@@ -7,5 +7,8 @@
   "menu_font_size": 50,
   "interactive_menu_font_size": 25,
   "interactive_menu_top_margin": 10,
-  "interactive_menu_left_margin": 5
+  "interactive_menu_left_margin": 5,
+  "creators_font_size" : 20,
+  "creators_padding" : 10,
+  "creators_font_style" : "freesansbold.ttf"
 }

@@ -8,6 +8,7 @@ from lib import login
 from lib import colors
 from lib import main_menu
 from lib import server_list
+from lib import creators_menu
 from lib.connections import connector
 
 
@@ -71,8 +72,11 @@ class Game:
 
     def tick(self):
         pygame.display.update()
-        self.__clock.tick(self.__settings['fps_max'])
+        self.__clock.tick_busy_loop(self.__settings['fps_max'])
         self.__screen.fill(colors.WHITE)
+
+    def get_delta_time(self):
+        return self.__clock.get_time()/1000.0
 
     @staticmethod
     def crash(msg):
@@ -94,12 +98,12 @@ if __name__ == "__main__":
     intro_obj = intro.Intro(main)
     login_obj = login.Login(main)
     main_menu_obj = main_menu.MainMenu(main)
+    creators_menu_obj = creators_menu.CreatorsMenu(main)
     server_list_obj = server_list.ServerList(main, conn)
     settings_obj = None
     settings_video_obj = None
     settings_controls_obj = None
     settings_audio_obj = None
-    creators_obj = None
     game_obj = None
     while True:
         main.update_events()
@@ -123,7 +127,7 @@ if __name__ == "__main__":
         elif main.get_state() == gamestates.SETTINGS_AUDIO:
             pass
         elif main.get_state() == gamestates.CREATORS:
-            pass
+            creators_menu_obj.loop()
         elif main.get_state() == gamestates.GAME:
             pass
         else:
