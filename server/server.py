@@ -5,30 +5,9 @@ import json
 import pickle
 from threading import Thread
 
+from lib.request_entities import request_fabric as request_fabric
 from lib import errors_provider as error
 from lib import request_types as request
-from lib.request_entities.login_response import LoginResponse
-from lib.request_entities.server_list_response import ServerList
-
-
-####################################
-# Method for testing purpose, will be deleted after adding proper request handlers
-def return_login(data, connection):
-    print(f'Received {data}')
-    server_authorization = LoginResponse('True')
-    return server_authorization
-
-
-def return_servers(data, connection):
-    print(f'Received {data}')
-    names = ["Server Krzemień", "Server Kulig", "Server Merta", "Server Kwilosz", "Server Krzystanek",
-             "Server Łyś", "Server Król"]
-    server_list = ServerList(names)
-    return server_list
-
-
-###########################
-
 
 class Server(object):
 
@@ -43,16 +22,9 @@ class Server(object):
         self.__connected_clients = []
         self.__config_file = 'config/server_config.json'
         self.__read_config()
-        self.__requests_dictionary = self.__get_request_dictionary()
+        self.__requests_dictionary = request_fabric.get_request_dictionary()
         self.__bind_socket()
         self.__listen_for_connections()
-
-    def __get_request_dictionary(self):
-        return {
-            request.LOGIN: (lambda data, connection: return_login(data, connection)),
-            request.GET_SERVERS: (lambda data, connection: return_servers(data, connection)),
-            request.NOT_FOUND: (lambda data, connection: print('Request not found'))
-        }
 
     def __read_config(self):
         if os.path.isfile(self.__config_file):
@@ -110,10 +82,10 @@ class Client(Thread):
                 data = self.__connection.recv(self.__MAX_PACKAGE)
                 if data == b'':
                     break
-                deserialized_data = pickle.loads(data)
+                deserialized_data = self.__deserialize_object(data)
                 request_type = self.__get_request_type(deserialized_data)
                 handler = self.__requests_dictionary[request_type]
-                respond = handler(json.loads(deserialized_data), self.__connection)
+                respond = handler(deserialized_data, self.__connection)
                 # print('DEBUG',type(respond), ' ', respond)
                 self.__connection.send(self.__serialize_object(respond))
             except Exception as e:
@@ -126,8 +98,8 @@ class Client(Thread):
     def __get_request_type(data):
         try:
             print(f'Data i Received {data}')
-            mapped_to_json = json.loads(data)
-            return mapped_to_json['requestType']
+            # mapped_to_json = json.loads(data)
+            return data['requestType']
         except ValueError as e:
             print(f'Exception in parsing json file {e}')
         return request.NOT_FOUND
@@ -139,7 +111,6 @@ class Client(Thread):
     @staticmethod
     def __deserialize_object(sending_object):
         return json.loads(pickle.loads(sending_object))
-
 
 
 if __name__ == '__main__':

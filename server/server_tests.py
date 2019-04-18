@@ -4,7 +4,7 @@ import socket
 import pickle
 from time import sleep
 
-requests_to_server = [{'requestType': '2'}, {'requestType': '1', "message": "hello world"}, {'requestType': '1'},
+requests_to_server = [{'requestType': '3'}, {'requestType': '1', "message": "hello world"}, {'requestType': '1'},
                       {'requestType': '1', 'error_data': 'xD'}]
 
 config_file = "config/server_config.json"
