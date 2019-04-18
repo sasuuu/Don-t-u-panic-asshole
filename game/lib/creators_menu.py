@@ -18,7 +18,7 @@ FONT_SIZE = game_config['creators_font_size'] if game_config is not None else 20
 PADDING = game_config['creators_padding'] if game_config is not None else 10
 FONT_STYLE = game_config['creators_font_style'] if game_config is not None else "freesansbold.ttf"
 LEFT_PADDING = 6
-VELOCITY = 180
+VELOCITY = 100
 
 
 class CreatorsMenu(object):
@@ -47,8 +47,7 @@ class CreatorsMenu(object):
 
         delta_time = self.__game.get_delta_time()
         if self.__position < self.__end_loop_condition:
-            time = delta_time/1000.0
-            self.__position += (time * VELOCITY)
+            self.__position += (delta_time * VELOCITY)
             self.__game.get_screen().fill(colors.BLACK)
             self.__write_text(self.__start_y - self.__position)
         else:

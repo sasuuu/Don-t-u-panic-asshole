@@ -71,12 +71,12 @@ class Game:
         self.__state = state
 
     def tick(self):
-        self.__clock.tick(self.__settings['fps_max'])
+        self.__clock.tick_busy_loop(self.__settings['fps_max'])
         pygame.display.update()
         self.__screen.fill(colors.WHITE)
 
     def get_delta_time(self):
-        return self.__clock.tick(self.__settings['fps_max'])
+        return self.__clock.get_time()/1000.0
 
     @staticmethod
     def crash(msg):
