@@ -71,7 +71,7 @@ class Game:
         self.__state = state
 
     def tick(self):
-        pygame.display.update()
+        pygame.display.flip()
         self.__clock.tick_busy_loop(self.__settings['fps_max'])
         self.__screen.fill(colors.WHITE)
 
