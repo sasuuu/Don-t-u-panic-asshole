@@ -65,7 +65,6 @@ class CreatorsMenu:
         for element in self.__text:
             self.__game.get_screen().blit(element, (self.__start_x, y))
             y += FONT_SIZE + PADDING
-        pygame.display.update()
 
     def __prepare_text(self):
         line_count = 0
