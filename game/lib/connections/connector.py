@@ -13,7 +13,7 @@ class Connector:
         self.__SERVER_PORT = None
         self.__MAX_PACKAGE = None
         self.__socket = None
-        self.__server_config_file_dir = "../../config/server_config.json"
+        self.__server_config_file_dir = "config/server_config.json"
         self.__read_config()
         self.__bind_socket()
 

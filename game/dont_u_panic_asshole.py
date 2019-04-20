@@ -1,23 +1,33 @@
 import pygame
 import json
 import os
-from game.lib import gamestates
-from game.lib import intro
-from game.lib import login
-from game.lib import colors
+
+from lib import gamestates
+from lib import intro
+from lib import login
+from lib import colors
+from lib.game.game_runner import GameRunner
+from lib.connections.connector import Connector
 
 
-class Game(object):
+class Game:
     def __init__(self):
         self.__game_title = 'Dont\'t u panic asshole'
         self.__settings = None
-        self.__settings_file = "settings.json"
+        self.__settings_file = "./settings.json"
         self.__state = None
         self.__clock = None
         self.__screen = None
+        self.__events = None
 
     def get_screen(self):
         return self.__screen
+
+    def get_events(self):
+        return self.__events
+
+    def update_events(self):
+        self.__events = pygame.event.get()
 
     def get_settings(self):
         file_exists = os.path.isfile(self.__settings_file)
@@ -39,10 +49,10 @@ class Game(object):
             display_mode = 0
         self.__clock = pygame.time.Clock()
         pygame.init()
-        self.__screen = pygame.display.set_mode((width,height),display_mode)
+        self.__screen = pygame.display.set_mode((width, height), display_mode)
         pygame.display.set_caption(self.__game_title)
         if self.__settings['intro_enable']:
-            self.__state = gamestates.INTRO
+            self.__state = gamestates.GAME # For testing purposes
         else:
             self.__state = gamestates.LOGIN
         print("Game initialized")
@@ -50,13 +60,21 @@ class Game(object):
     def get_state(self):
         return self.__state
 
+    def handle_quit_event(self):
+        for event in self.__events:
+            if event.type == pygame.QUIT:
+                self.set_state(gamestates.QUIT)
+
     def set_state(self, state):
         self.__state = state
 
     def tick(self):
-        pygame.display.update()
-        self.__clock.tick(self.__settings['fps_max'])
+        pygame.display.flip()
+        self.__clock.tick_busy_loop(self.__settings['fps_max'])
         self.__screen.fill(colors.WHITE)
+
+    def get_delta_time(self):
+        return self.__clock.get_time()/1000.0
 
     @staticmethod
     def crash(msg):
@@ -74,6 +92,7 @@ class Game(object):
 if __name__ == "__main__":
     main = Game()
     main.init()
+    conn_obj = Connector()
     intro_obj = intro.Intro(main)
     login_obj = login.Login(main)
     main_menu_obj = None
@@ -83,8 +102,10 @@ if __name__ == "__main__":
     settings_controls_obj = None
     settings_audio_obj = None
     creators_obj = None
-    game_obj = None
+    game_obj = GameRunner(main, conn_obj)
     while True:
+        main.update_events()
+        main.handle_quit_event()
         if main.get_state() == gamestates.QUIT:
             main.quit()
         elif main.get_state() == gamestates.INTRO:
@@ -106,7 +127,7 @@ if __name__ == "__main__":
         elif main.get_state() == gamestates.CREATORS:
             pass
         elif main.get_state() == gamestates.GAME:
-            pass
+            game_obj.loop()
         else:
             main.crash("Unknown game state")
         main.tick()
