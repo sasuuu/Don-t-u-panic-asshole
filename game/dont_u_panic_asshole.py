@@ -8,6 +8,7 @@ from lib import login
 from lib import colors
 from lib.game.game_runner import GameRunner
 from lib.connections.connector import Connector
+from lib.music import MenuMusic
 
 
 class Game:
@@ -52,7 +53,7 @@ class Game:
         self.__screen = pygame.display.set_mode((width, height), display_mode)
         pygame.display.set_caption(self.__game_title)
         if self.__settings['intro_enable']:
-            self.__state = gamestates.GAME # For testing purposes
+            self.__state = gamestates.INTRO
         else:
             self.__state = gamestates.LOGIN
         print("Game initialized")
@@ -92,6 +93,7 @@ class Game:
 if __name__ == "__main__":
     main = Game()
     main.init()
+    music_obj = MenuMusic()
     conn_obj = Connector()
     intro_obj = intro.Intro(main)
     login_obj = login.Login(main)
@@ -103,6 +105,7 @@ if __name__ == "__main__":
     settings_audio_obj = None
     creators_obj = None
     game_obj = GameRunner(main, conn_obj)
+    music_obj.start_music()
     while True:
         main.update_events()
         main.handle_quit_event()
@@ -127,6 +130,7 @@ if __name__ == "__main__":
         elif main.get_state() == gamestates.CREATORS:
             pass
         elif main.get_state() == gamestates.GAME:
+            music_obj.stop_music()
             game_obj.loop()
         else:
             main.crash("Unknown game state")
