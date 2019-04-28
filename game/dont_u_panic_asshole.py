@@ -1,6 +1,9 @@
 import pygame
 import json
 import os
+import threading
+import queue
+import time
 
 from lib import gamestates
 from lib import intro
@@ -10,6 +13,28 @@ from lib import main_menu
 from lib import server_list
 from lib import creators_menu
 from lib.connections import connector
+
+QUEUE_SIZE = 20
+RECONNECT_TRY_DELAY = 10
+GET_RESPONSE_TIMEOUT = 2
+
+
+class TcpConnectionThread(threading.Thread):
+    def __init__(self, game):
+        threading.Thread.__init__(self)
+        self.__game = game
+        self.__last_reconnect_try = time.process_time()
+
+    def run(self):
+        conn = self.__game.get_connector()
+        while not self.__game.thread_status():
+            if not conn.is_connected():
+                if time.process_time() - self.__last_reconnect_try > RECONNECT_TRY_DELAY:
+                    conn.try_reconnect()
+                continue
+            response = conn.get_response(timeout=GET_RESPONSE_TIMEOUT)
+            if response != '' and response is not False:
+                self.__game.queue_put(response)
 
 
 class Game:
@@ -21,6 +46,29 @@ class Game:
         self.__clock = None
         self.__screen = None
         self.__events = None
+        self.__conn = connector.Connector()
+        self.__queue = queue.Queue(QUEUE_SIZE)
+        self.__server_responses = []
+        self.__thread = TcpConnectionThread(self)
+        self.__thread_stop = False
+        self.__thread.start()
+
+    def thread_status(self):
+        return self.__thread_stop
+
+    def get_connector(self):
+        return self.__conn
+
+    def queue_put(self, data):
+        self.__queue.put(data)
+
+    def get_server_responses(self):
+        return self.__server_responses
+
+    def __get_data_from_queue(self):
+        self.__server_responses.clear()
+        while not self.__queue.empty():
+            self.__server_responses.append(self.__queue.get())
 
     def get_screen(self):
         return self.__screen
@@ -65,6 +113,7 @@ class Game:
     def handle_quit_event(self):
         for event in self.__events:
             if event.type == pygame.QUIT:
+                self.__thread_stop = True
                 self.set_state(gamestates.QUIT)
 
     def set_state(self, state):
@@ -73,6 +122,7 @@ class Game:
     def tick(self):
         pygame.display.flip()
         self.__clock.tick_busy_loop(self.__settings['fps_max'])
+        self.__get_data_from_queue()
         self.__screen.fill(colors.WHITE)
 
     def get_delta_time(self):
@@ -94,12 +144,11 @@ class Game:
 if __name__ == "__main__":
     main = Game()
     main.init()
-    conn = connector.Connector()
     intro_obj = intro.Intro(main)
     login_obj = login.Login(main)
     main_menu_obj = main_menu.MainMenu(main)
     creators_menu_obj = creators_menu.CreatorsMenu(main)
-    server_list_obj = server_list.ServerList(main, conn)
+    server_list_obj = server_list.ServerList(main, main.get_connector())
     settings_obj = None
     settings_video_obj = None
     settings_controls_obj = None
