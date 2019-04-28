@@ -113,7 +113,6 @@ class Game:
     def handle_quit_event(self):
         for event in self.__events:
             if event.type == pygame.QUIT:
-                self.__thread_stop = True
                 self.set_state(gamestates.QUIT)
 
     def set_state(self, state):
@@ -128,17 +127,17 @@ class Game:
     def get_delta_time(self):
         return self.__clock.get_time()/1000.0
 
-    @staticmethod
-    def crash(msg):
-        print(msg)
-        pygame.quit()
-        exit(-1)
-
-    @staticmethod
-    def quit():
+    def quit(self):
         print("Bye bye :(")
+        self.__thread_stop = True
         pygame.quit()
         exit(0)
+
+    def crash(self, msg):
+        print(msg)
+        self.__thread_stop = True
+        pygame.quit()
+        exit(-1)
 
 
 if __name__ == "__main__":
