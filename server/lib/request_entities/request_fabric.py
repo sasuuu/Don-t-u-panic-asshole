@@ -2,13 +2,13 @@ from lib import request_types
 
 
 def return_login(data, connection):
-    return {"respond": 'True'}
+    return {"request_type": request_types.LOGIN_RESULT, "response": 'True'}
 
 
 def return_servers(data, connection):
     names = ["Server Krzemień", "Server Kulig", "Server Merta", "Server Kwilosz", "Server Krzystanek",
              "Server Łyś", "Server Król"]
-    return {"serverList": names}
+    return {"request_type": request_types.SERVER_LISTS, "response": names}
 
 
 def get_request_dictionary():
