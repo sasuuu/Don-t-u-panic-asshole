@@ -1,5 +1,5 @@
 {
   "ipAddress": "127.0.0.1",
-  "portNumber": 8080,
+  "portNumber": 55555,
   "maxPackage": 262144
 }

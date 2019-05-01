@@ -71,7 +71,7 @@ class Login(object):
     def __check_server_response(self):
         server_responses = self.__game.get_server_responses()
         for response in server_responses:
-            if response['type'] != request_types.LOGIN:
+            if response['request_type'] != request_types.LOGIN_RESULT:
                 continue
             if response['response'] == 'True':
                 print("Login success")
