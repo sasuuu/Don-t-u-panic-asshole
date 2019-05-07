@@ -3,14 +3,14 @@ import os
 import sys
 import json
 import pickle
-import _thread as thread
+from threading import Thread
+
+from lib.request_entities import request_fabric as request_fabric
 from lib import errors_provider as error
 from lib import request_types as request
-from lib.request_entities.login_response import LoginResponse
-from lib.request_entities.server_list_response import ServerList
 
 
-class Server:
+class Server(object):
 
     def __init__(self):
         self.__IP_ADDRESS = None
@@ -20,32 +20,12 @@ class Server:
         self.__socket = None
         self.__login_request_handler = None
         self.__server_list_request_handler = None
-        self.__connected_users = []
+        self.__connected_clients = []
         self.__config_file = 'config/server_config.json'
         self.__read_config()
-        self.__requests_dictionary = self.__get_request_dictionary()
+        self.__requests_dictionary = request_fabric.get_request_dictionary()
         self.__bind_socket()
         self.__listen_for_connections()
-
-    def __get_request_dictionary(self):
-        return {
-                request.LOGIN: (lambda data, connection: self.__return_login(data, connection)),
-                request.GET_SERVERS: (lambda data, connection: self.__return_servers(data, connection)),
-                request.NOT_FOUND: (lambda data, connection: print('Request not found'))
-        }
-
-    # Method for testing purpose, will be deleted after adding proper request handlers
-    def __return_login(self, data, connection):
-        print(f'Received {data}')
-        server_authorization = LoginResponse('True')
-        connection.send(self.__serialize_object(server_authorization))
-
-    def __return_servers(self, data, connection):
-        print(f'Received {data}')
-        names = ["Server Krzemień", "Server Kulig", "Server Merta", "Server Kwilosz", "Server Krzystanek",
-                       "Server Łyś", "Server Król"]
-        server_list = ServerList(names)
-        connection.send(self.__serialize_object(server_list))
 
     def __read_config(self):
         if os.path.isfile(self.__config_file):
@@ -77,35 +57,61 @@ class Server:
         print('Server initialized')
         while True:
             connection, address = self.__socket.accept()
-            thread.start_new_thread(self.__handle_connection, (connection, address))
+            client = Client(connection, address, self.__requests_dictionary, self.__MAX_PACKAGE, self)
+            client.start()
+            self.__connected_clients.append(client)
 
-    def __handle_connection(self, connection, address):
-        self.__connected_users.append([connection, address])
+    def notify_end_connection(self, client):
+        self.__connected_clients.remove(client)
+
+
+class Client(Thread):
+
+    def __init__(self, connection, address, requests_dictionary, mas_package, server=None):
+        Thread.__init__(self)
+        self.__connection = connection
+        self.__address = address
+        self.__requests_dictionary = requests_dictionary
+        self.__MAX_PACKAGE = mas_package
+        self.__server = server
+
+    def run(self):
+        print(f'open connection {self.__connection}')
         data = True
         while data:
             try:
-                data = connection.recv(self.__MAX_PACKAGE)
-                deserialized_data = pickle.loads(data)
+                data = self.__connection.recv(self.__MAX_PACKAGE)
+                if data == b'':
+                    break
+                deserialized_data = self.__deserialize_object(data)
                 request_type = self.__get_request_type(deserialized_data)
-                self.__requests_dictionary[request_type].__call__(deserialized_data, connection)
+                handler = self.__requests_dictionary[request_type]
+                respond = handler(deserialized_data, self.__connection)
+                print('DEBUG', type(respond), ' ', respond)
+                self.__connection.send(self.__serialize_object(respond))
+            except KeyError:
+                print('request handler not founded')
+                self.__connection.send(self.__serialize_object({'respond': 'request cannot be handled}'}))
             except Exception as e:
-                print(f'Error deserializing data {e}')
-        self.__connected_users.remove([connection, address])
-        connection.close()
+                print(f'Error deserializing data {type(e)} {e}')
+                break
+        print(f'close connection {self.__connection}')
+        self.__connection.close()
+        self.__server.notify_end_connection(self)
 
     @staticmethod
     def __get_request_type(data):
         try:
             print(f'Data i Received {data}')
-            mapped_to_json = json.loads(data)
-            return mapped_to_json['requestType']
-        except ValueError as e:
+            # mapped_to_json = json.loads(data)
+            return data['requestType']
+        except KeyError as e:
             print(f'Exception in parsing json file {e}')
-        return request.NOT_FOUND
+            return request.NOT_FOUND
 
     @staticmethod
     def __serialize_object(sending_object):
-        return pickle.dumps(json.dumps(vars(sending_object)))
+        return pickle.dumps(json.dumps(sending_object))
 
     @staticmethod
     def __deserialize_object(sending_object):

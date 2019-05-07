@@ -5,7 +5,6 @@ import os
 from lib import gamestates
 from lib import interactive_menu
 from lib import colors
-from lib.connections import connector
 
 game_config = None
 file_exists = os.path.isfile("game/config/game_config.json")
@@ -17,27 +16,26 @@ FONT_SIZE = game_config['intro_font_size'] if game_config is not None else 50
 
 
 class ServerList:
-    def __init__(self, game, connector):
+    def __init__(self, game):
         self.__menu_title = "Servers"
-        self.__connector = connector
         self.__game = game
-        self.__server_list = None
+        self.__connector = self.__game.get_connector()
+        self.__server_list = self.__connector.get_servers()
         self.__active_server = 0
         self.__title = pygame.font.SysFont(FONT_STYLE, FONT_SIZE)
-        self.__interactive_menu = interactive_menu.InteractiveMenu(0.25, 0.2, 0.5, 0.6)
+        if not self.__server_list:
+            self.__interactive_menu = interactive_menu.InteractiveMenu(0.25, 0.2, 0.5, 0.6)
+        else:
+            self.__interactive_menu = interactive_menu.InteractiveMenu(0.25, 0.2, 0.5, 0.6, self.__server_list)
 
     def loop(self):
         events = self.__game.get_events()
         for event in events:
-            if event.type == pygame.QUIT:
-                print('quit')
-                self.__game.set_state(gamestates.QUIT)
-                return
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 self.__game.set_state(gamestates.MAIN_MENU)
                 return
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-                if self.__server_list is not None:
+                if self.__server_list:
                     self.__active_server = self.__interactive_menu.get_marked_line_index
                     self.__game.set_state(gamestates.GAME)
                     print(self.__active_server)
