@@ -86,7 +86,7 @@ class Client(Thread):
                 deserialized_data = self.__deserialize_object(data)
                 request_type = self.__get_request_type(deserialized_data)
                 handler = self.__requests_dictionary[request_type]
-                respond = handler(deserialized_data, self.__connection)
+                respond = handler.handle(deserialized_data, self)
                 print('DEBUG', type(respond), ' ', respond)
                 self.__connection.send(self.__serialize_object(respond))
             except KeyError:
