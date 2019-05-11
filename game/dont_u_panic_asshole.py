@@ -54,7 +54,7 @@ class Game:
         self.__screen = pygame.display.set_mode((width, height), display_mode)
         pygame.display.set_caption(self.__game_title)
         if self.__settings['intro_enable']:
-            self.__state = gamestates.INTRO
+            self.__state = gamestates.GAME
         else:
             self.__state = gamestates.LOGIN
         print("Game initialized")
