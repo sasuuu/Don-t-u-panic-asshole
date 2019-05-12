@@ -2,14 +2,11 @@ from abc import ABC, abstractmethod
 
 from lib import request_types
 
-from lib.db.db_connection import DataBase
 
-
-def get_request_dictionary():
-    sql = DataBase()
+def get_request_dictionary(db):
     return {
-        request_types.LOGIN: LoginRequestHandler(sql),
-        request_types.GET_SERVERS: ServerList(sql),
+        request_types.LOGIN: LoginRequestHandler(db),
+        request_types.GET_SERVERS: ServerList(db),
     }
 
 
@@ -19,21 +16,22 @@ class RequestHandler(ABC):
         self._DB = db
 
     @abstractmethod
-    def handle(self, data, connection):
+    def handle(self, data, client):
         pass
 
 
 class LoginRequestHandler(RequestHandler):
 
-    def handle(self, data, connection):
+    def handle(self, data, client):
         user = data['username']
         password = data['password']
-        (resoult,) = self._DB.make_query(f"SELECT count(*) FROM player where password = '{password}' and nick='{user}'")[0]
-        print(resoult)
-        if resoult == 1:
+        (result,) = \
+            self._DB.make_query(f"SELECT count(*) FROM player where password = '{password}' and nick='{user}'")[0]
+        if result == 1:
             print('user ' + user + '  log in')
+            client.login(user)
             return {"request_type": request_types.LOGIN_RESULT, "response": 'True'}
-        elif resoult == 0:
+        elif result == 0:
             print('user ' + user + '  fail log in')
             return {"request_type": request_types.LOGIN_RESULT, "response": 'False'}
         else:
@@ -42,7 +40,13 @@ class LoginRequestHandler(RequestHandler):
 
 class ServerList(RequestHandler):
 
-    def handle(self, data, connection):
-        names = ["Server Krzemień", "Server Kulig", "Server Merta", "Server Kwilosz", "Server Krzystanek",
-                 "Server Łyś", "Server Król"]
-        return {"request_type": request_types.SERVER_LISTS, "response": names}
+    def handle(self, data, client):
+        if client.is_logged():
+            server_list = self._DB.make_query(f"SELECT name, server_ip, player_count FROM server")
+            return {"request_type": request_types.SERVER_LISTS, "response": server_list}
+        else:
+            raise IllegalAccessException
+
+
+class IllegalAccessException(Exception):
+    pass

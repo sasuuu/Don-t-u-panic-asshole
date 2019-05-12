@@ -27,15 +27,20 @@ class DataBase(object):
             print("Error while connecting to MySQL", e)
             raise ConnectionError(e)
 
-    def __close_connection(self):
+    def close_connection(self):
         if self.__connection.is_connected():
             self.__connection.close()
             print("MySQL connection is closed")
+        else:
+            print("MySQL connection cannot be closed because is closed already")
 
     def make_query(self, query):
         cursor = self.__connection.cursor()
         cursor.execute(query)
-        return cursor.fetchall()
+        print("DEBUG make query:" + str(cursor))
+        result = cursor.fetchall()
+        cursor.close()
+        return result
 
     def __read_config(self, config_file):
         if os.path.isfile(config_file):
