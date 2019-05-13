@@ -17,6 +17,7 @@ from lib.connections import connector
 QUEUE_SIZE = 20
 RECONNECT_TRY_DELAY = 10
 GET_RESPONSE_TIMEOUT = 2
+MILISECONDS_IN_SECOND = 1000.0
 
 
 class TcpConnectionThread(threading.Thread):
@@ -28,13 +29,19 @@ class TcpConnectionThread(threading.Thread):
     def run(self):
         conn = self.__game.get_connector()
         while not self.__game.thread_status():
-            if not conn.is_connected():
-                if time.process_time() - self.__last_reconnect_try > RECONNECT_TRY_DELAY:
-                    conn.try_reconnect()
+            if not self.__check_server_connection(conn):
                 continue
             response = conn.get_response(timeout=GET_RESPONSE_TIMEOUT)
-            if response != '' and response is not False:
+            if response is not False:
                 self.__game.queue_put(response)
+
+    def __check_server_connection(self, conn):
+        if not conn.is_connected():
+            if time.process_time() - self.__last_reconnect_try > RECONNECT_TRY_DELAY:
+                conn.try_reconnect()
+            return False
+        else:
+            return True
 
 
 class Game:
@@ -125,7 +132,7 @@ class Game:
         self.__screen.fill(colors.WHITE)
 
     def get_delta_time(self):
-        return self.__clock.get_time()/1000.0
+        return self.__clock.get_time()/MILISECONDS_IN_SECOND
 
     def quit(self):
         print("Bye bye :(")
