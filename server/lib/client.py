@@ -8,12 +8,12 @@ from lib import request_types as request
 
 class Client(Thread):
 
-    def __init__(self, connection, address, requests_dictionary, mas_package, server=None):
+    def __init__(self, connection, address, requests_dictionary, max_package, server=None):
         Thread.__init__(self)
         self.__connection = connection
         self.__address = address
         self.__requests_dictionary = requests_dictionary
-        self.__MAX_PACKAGE = mas_package
+        self.__MAX_PACKAGE = max_package
         self.__server = server
         self.__logged = False
         self.__nick = None
