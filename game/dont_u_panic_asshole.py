@@ -17,7 +17,7 @@ from lib.connections import connector
 QUEUE_SIZE = 20
 RECONNECT_TRY_DELAY = 10
 GET_RESPONSE_TIMEOUT = 2
-MILISECONDS_IN_SECOND = 1000.0
+SECOND_IN_MILISECONDS = 1000.0
 
 
 class TcpConnectionThread(threading.Thread):
@@ -132,7 +132,7 @@ class Game:
         self.__screen.fill(colors.WHITE)
 
     def get_delta_time(self):
-        return self.__clock.get_time()/MILISECONDS_IN_SECOND
+        return self.__clock.get_time()/SECOND_IN_MILISECONDS
 
     def quit(self):
         print("Bye bye :(")
