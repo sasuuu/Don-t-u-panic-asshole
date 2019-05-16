@@ -9,6 +9,7 @@ from lib import colors
 from lib import main_menu
 from lib import server_list
 from lib import creators_menu
+from lib import controls
 from lib.connections import connector
 
 
@@ -100,6 +101,7 @@ if __name__ == "__main__":
     main_menu_obj = main_menu.MainMenu(main)
     creators_menu_obj = creators_menu.CreatorsMenu(main)
     server_list_obj = server_list.ServerList(main, conn)
+    controls_obj = controls.Controls(main)
     settings_obj = None
     settings_video_obj = None
     settings_controls_obj = None
@@ -122,8 +124,8 @@ if __name__ == "__main__":
             pass
         elif main.get_state() == gamestates.SETTINGS_VIDEO:
             pass
-        elif main.get_state() == gamestates.SETTINGS_CONTROLS:
-            pass
+        elif main.get_state() == gamestates.CONTROLS:
+            controls_obj.loop()
         elif main.get_state() == gamestates.SETTINGS_AUDIO:
             pass
         elif main.get_state() == gamestates.CREATORS:
