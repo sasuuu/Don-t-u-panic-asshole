@@ -5,7 +5,7 @@ import json
 
 from threading import Thread, Lock
 
-from lib.request_entities import request_fabric as request_fabric
+from lib.request_entities import request_factory as request_factory
 from lib import errors_provider as error
 
 from lib.db.db_connection import DataBase
@@ -27,7 +27,7 @@ class Server(Thread):
         self.__config_file = 'config/server_config.json'
         self.__read_config()
         self.__db = DataBase()
-        self.__requests_dictionary = request_fabric.get_request_dictionary(self.__db)
+        self.__requests_dictionary = request_factory.get_request_dictionary(self.__db)
         self.__bind_socket()
         self.__stopped = False
         self.__stop_signal_lock = Lock()
