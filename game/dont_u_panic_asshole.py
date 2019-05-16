@@ -19,7 +19,6 @@ RECONNECT_TRY_DELAY = 10
 GET_RESPONSE_TIMEOUT = 2
 SECOND_IN_MILISECONDS = 1000.0
 
-
 class TcpConnectionThread(threading.Thread):
     def __init__(self, game):
         threading.Thread.__init__(self)
@@ -42,7 +41,6 @@ class TcpConnectionThread(threading.Thread):
             return False
         else:
             return True
-
 
 class Game:
     def __init__(self):
@@ -150,6 +148,7 @@ class Game:
 if __name__ == "__main__":
     main = Game()
     main.init()
+    conn = connector.Connector()
     intro_obj = intro.Intro(main)
     login_obj = login.Login(main)
     main_menu_obj = main_menu.MainMenu(main)
