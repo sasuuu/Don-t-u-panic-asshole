@@ -9,6 +9,8 @@ from lib import gamestates
 from lib import intro
 from lib import login
 from lib import colors
+from lib.game.game_runner import GameRunner
+from lib.music import MenuMusic
 from lib import main_menu
 from lib import server_list
 from lib import creators_menu
@@ -18,7 +20,6 @@ QUEUE_SIZE = 20
 RECONNECT_TRY_DELAY = 10
 GET_RESPONSE_TIMEOUT = 2
 SECOND_IN_MILISECONDS = 1000.0
-
 
 class TcpConnectionThread(threading.Thread):
     def __init__(self, game):
@@ -42,7 +43,6 @@ class TcpConnectionThread(threading.Thread):
             return False
         else:
             return True
-
 
 class Game:
     def __init__(self):
@@ -150,16 +150,19 @@ class Game:
 if __name__ == "__main__":
     main = Game()
     main.init()
+    music_obj = MenuMusic()
     intro_obj = intro.Intro(main)
     login_obj = login.Login(main)
     main_menu_obj = main_menu.MainMenu(main)
     creators_menu_obj = creators_menu.CreatorsMenu(main)
-    server_list_obj = server_list.ServerList(main, main.get_connector())
+    server_list_obj = server_list.ServerList(main)
     settings_obj = None
     settings_video_obj = None
     settings_controls_obj = None
     settings_audio_obj = None
-    game_obj = None
+    creators_obj = None
+    game_obj = GameRunner(main)
+    music_obj.start_music()
     while True:
         main.update_events()
         main.handle_quit_event()
@@ -184,7 +187,8 @@ if __name__ == "__main__":
         elif main.get_state() == gamestates.CREATORS:
             creators_menu_obj.loop()
         elif main.get_state() == gamestates.GAME:
-            pass
+            music_obj.stop_music()
+            game_obj.loop()
         else:
             main.crash("Unknown game state")
         main.tick()
