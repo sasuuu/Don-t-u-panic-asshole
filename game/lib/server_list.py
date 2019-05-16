@@ -19,7 +19,7 @@ class ServerList:
     def __init__(self, game):
         self.__menu_title = "Servers"
         self.__game = game
-		self.__connector = self.__game.get_connector()
+        self.__connector = self.__game.get_connector()
         self.__server_list = None
         self.__active_server = 0
         self.__title = pygame.font.SysFont(FONT_STYLE, FONT_SIZE)

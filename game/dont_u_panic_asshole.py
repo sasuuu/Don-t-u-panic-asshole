@@ -151,7 +151,6 @@ if __name__ == "__main__":
     main = Game()
     main.init()
     music_obj = MenuMusic()
-    conn_obj = Connector()
     intro_obj = intro.Intro(main)
     login_obj = login.Login(main)
     main_menu_obj = main_menu.MainMenu(main)
