@@ -36,9 +36,11 @@ class MainMenu():
                                             function=self.choice, args="Start")
         self.__button_setting = button.Button(self.__button_pos_x, self.__button_pos_y + self.__new_line, 0.2, 0.1,
                                               text='Setting', function=self.choice, args="Setting")
-        self.__button_creators = button.Button(self.__button_pos_x, self.__button_pos_y + 2 * self.__new_line, 0.2, 0.1,
+        self.__button_controls = button.Button(self.__button_pos_x, self.__button_pos_y + 2 * self.__new_line, 0.2, 0.1,
+                                               text='Controls', function=self.choice, args="Controls")
+        self.__button_creators = button.Button(self.__button_pos_x, self.__button_pos_y + 3 * self.__new_line, 0.2, 0.1,
                                                text='Creators', function=self.choice, args="Creators")
-        self.__button_exit = button.Button(self.__button_pos_x, self.__button_pos_y + 3 * self.__new_line, 0.2, 0.1,
+        self.__button_exit = button.Button(self.__button_pos_x, self.__button_pos_y + 4 * self.__new_line, 0.2, 0.1,
                                            text='Exit', function=self.choice, args="Exit")
         print("Menu initialized")
 
@@ -47,6 +49,8 @@ class MainMenu():
             self.__game.set_state(gamestates.SERVER_LIST)
         elif text == 'Setting':
             self.__game.set_state(gamestates.SETTINGS)
+        elif text == 'Controls':
+            self.__game.set_state(gamestates.CONTROLS)
         elif text == 'Creators':
             self.__game.set_state(gamestates.CREATORS)
         elif text == 'Exit':
@@ -66,5 +70,6 @@ class MainMenu():
                                          "Panic A**hole", colors.BLACK)
         self.__button_start.draw(events)
         self.__button_setting.draw(events)
+        self.__button_controls.draw(events)
         self.__button_creators.draw(events)
         self.__button_exit.draw(events)

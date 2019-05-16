@@ -14,6 +14,7 @@ from lib.music import MenuMusic
 from lib import main_menu
 from lib import server_list
 from lib import creators_menu
+from lib import controls
 from lib.connections import connector
 
 QUEUE_SIZE = 20
@@ -157,8 +158,8 @@ if __name__ == "__main__":
     creators_menu_obj = creators_menu.CreatorsMenu(main)
     server_list_obj = server_list.ServerList(main)
     settings_obj = None
+    settings_controls_obj = controls.Controls(main)
     settings_video_obj = None
-    settings_controls_obj = None
     settings_audio_obj = None
     creators_obj = None
     game_obj = GameRunner(main)
@@ -180,8 +181,8 @@ if __name__ == "__main__":
             pass
         elif main.get_state() == gamestates.SETTINGS_VIDEO:
             pass
-        elif main.get_state() == gamestates.SETTINGS_CONTROLS:
-            pass
+        elif main.get_state() == gamestates.CONTROLS:
+            settings_controls_obj.loop()
         elif main.get_state() == gamestates.SETTINGS_AUDIO:
             pass
         elif main.get_state() == gamestates.CREATORS:
