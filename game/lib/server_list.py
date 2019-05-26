@@ -16,10 +16,10 @@ FONT_SIZE = game_config['intro_font_size'] if game_config is not None else 50
 
 
 class ServerList:
-    def __init__(self, game, connector):
+    def __init__(self, game):
         self.__menu_title = "Servers"
-        self.__connector = connector
         self.__game = game
+        self.__connector = self.__game.get_connector()
         self.__server_list = None
         self.__active_server = 0
         self.__title = pygame.font.SysFont(FONT_STYLE, FONT_SIZE)

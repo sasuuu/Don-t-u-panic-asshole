@@ -7,9 +7,8 @@ IDLE_SPEED = 0
 
 class GameRunner:
 
-    def __init__(self, game_object, conn):
+    def __init__(self, game_object):
         self.__game = game_object
-        self.__connector = conn
         self.__main_hero_pos = tuple(map(lambda x: x/2, self.__game.get_screen().get_size()))
         self.__screen = self.__game.get_screen()
         self.__main_hero = MainHero(game_object)

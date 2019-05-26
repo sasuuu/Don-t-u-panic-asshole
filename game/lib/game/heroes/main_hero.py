@@ -47,6 +47,7 @@ class MainHero(Hero):
     __movement_up = False
     __movement_down = False
     __move_count = 0
+    __last_update_time = 0
 
     def __init__(self, game):
         self.__character = pygame.image.load('config/assets/main_hero.png')
@@ -60,6 +61,8 @@ class MainHero(Hero):
         self.__end = 0
         self.__flag = False
 
+        self.__standing = "right"
+
     def get_character(self):
         return self.__character
 
@@ -71,17 +74,10 @@ class MainHero(Hero):
         self.__position_y += vertical_speed
 
     def get_sprite(self):
-        self.__delta_time = fabs(self.__end - self.__start)
-
-        if self.__delta_time >= SPRITE_CHANGE_DELTA_TIME:
+        actual_time = pygame.time.get_ticks()
+        if fabs(actual_time - self.__last_update_time) >= SPRITE_CHANGE_DELTA_TIME:
             self.__move_count += 1
-            self.__delta_time = 0.0
-            self.__flag = False
-
-        if (self.__movement_left or self.__movement_right or self.__movement_down or self.__movement_up)\
-                and not self.__flag:
-            self.__start = pygame.time.get_ticks()
-            self.__flag = True
+            self.__last_update_time = actual_time
 
         if self.__movement_left:
             sprite = left_sprite[self.__move_count % SPRITE_AMOUNT_HORIZONTAL]
@@ -92,30 +88,47 @@ class MainHero(Hero):
         elif self.__movement_down:
             sprite = down_sprite[self.__move_count % SPRITE_AMOUNT_VERTICAL]
         else:
-            sprite = self.__character
+            sprite = self.set_standing_sprite()
 
-        self.__end = pygame.time.get_ticks()
         return sprite
-
-    def set_movement_right(self):
-        self.__movement_right = True
-
-    def set_movement_left(self):
-        self.__movement_left = True
-
-    def set_movement_up(self):
-        self.__movement_up = True
-
-    def set_movement_down(self):
-        self.__movement_down = True
 
     def reset_direction(self, direction):
         if direction == pygame.K_d:
             self.__movement_right = False
+            self.__standing = "right"
         if direction == pygame.K_a:
             self.__movement_left = False
+            self.__standing = "left"
         if direction == pygame.K_s:
             self.__movement_down = False
+            self.__standing = "down"
         if direction == pygame.K_w:
             self.__movement_up = False
+            self.__standing = "up"
         self.__move_count = 0
+
+    def set_movement_right(self):
+        self.__movement_right = True
+        self.__movement_left = False
+
+    def set_movement_left(self):
+        self.__movement_left = True
+        self.__movement_right = False
+
+    def set_movement_up(self):
+        self.__movement_up = True
+        self.__movement_down = False
+
+    def set_movement_down(self):
+        self.__movement_down = True
+        self.__movement_up = False
+
+    def set_standing_sprite(self):
+        if self.__standing == "left":
+            return left_sprite[0]
+        if self.__standing == "right":
+            return right_sprite[0]
+        if self.__standing == "up":
+            return up_sprite[0]
+        if self.__standing == "down":
+            return down_sprite[0]

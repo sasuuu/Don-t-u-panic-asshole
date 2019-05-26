@@ -21,7 +21,7 @@ LEFT_PADDING = 6
 VELOCITY = 100
 
 
-class CreatorsMenu(object):
+class CreatorsMenu:
 
     def __init__(self, game):
         self.__game = game
@@ -65,8 +65,6 @@ class CreatorsMenu(object):
         for element in self.__text:
             self.__game.get_screen().blit(element, (self.__start_x, y))
             y += FONT_SIZE + PADDING
-
-        pygame.display.flip()
 
     def __prepare_text(self):
         line_count = 0
