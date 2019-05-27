@@ -3,7 +3,7 @@ import os
 import sys
 import json
 import queue
-import time
+import pickle
 
 from threading import Thread, Lock
 
@@ -11,7 +11,8 @@ from lib.request_entities import request_factory as request_factory
 from lib import errors_provider as error
 
 from lib.db.db_connection import DataBase
-from lib.client import Client
+
+from lib.request_handler import RequestHandler
 
 QUEUE_SIZE = 20
 RECEIVE_TIMEOUT = 1
@@ -91,6 +92,7 @@ class Server(Thread):
         self.__receiving_thread.start()
         self.__sending_thread = SendPackagesThread(self.__socket, self.__packages_to_send)
         self.__sending_thread.start()
+        self.__request_handler = RequestHandler()
         print('Server initialized')
 
     def stop(self):
@@ -174,8 +176,26 @@ class Server(Thread):
     def __handle_package(self, package):
         print(package)
         data, address = package
-        package_to_send = (b'test reply', address)
-        self.__send_package(package_to_send)
+        deserialized_data = self.__deserialize_object(package)
+        request_type = self.__get_request_type(deserialized_data)
+        package_to_send = self.__request_handler.handle_request(request_type, deserialized_data)
+        self.__put_package_to_queue((package_to_send, address)),
 
-    def __send_package(self, package):
+    def __put_package_to_queue(self, package):
         self.__packages_to_send.put(package)
+
+    @staticmethod
+    def __get_request_type(data):
+        try:
+            return data['requestType']
+        except KeyError as e:
+            print(f'Exception in parsing json file {e}')
+            return None
+
+    @staticmethod
+    def __serialize_object(sending_object):
+        return pickle.dumps(json.dumps(sending_object))
+
+    @staticmethod
+    def __deserialize_object(sending_object):
+        return json.loads(pickle.loads(sending_object))
