@@ -1,0 +1,6 @@
+{
+  "ipAddress": "127.0.0.1",
+  "portNumber": 7070,
+  "maxHosts": 64,
+  "maxPackage": 262144
+}
