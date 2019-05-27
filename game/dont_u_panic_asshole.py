@@ -9,14 +9,18 @@ from lib import gamestates
 from lib import intro
 from lib import login
 from lib import colors
+from lib.game.game_runner import GameRunner
+from lib.music import MenuMusic
 from lib import main_menu
 from lib import server_list
 from lib import creators_menu
+from lib import controls
 from lib.connections import connector
 
 QUEUE_SIZE = 20
 RECONNECT_TRY_DELAY = 10
 GET_RESPONSE_TIMEOUT = 2
+SECOND_IN_MILISECONDS = 1000.0
 
 
 class TcpConnectionThread(threading.Thread):
@@ -28,16 +32,23 @@ class TcpConnectionThread(threading.Thread):
     def run(self):
         conn = self.__game.get_connector()
         while not self.__game.thread_status():
-            if not conn.is_connected():
-                if time.process_time() - self.__last_reconnect_try > RECONNECT_TRY_DELAY:
-                    conn.try_reconnect()
+            if not self.__check_server_connection(conn):
                 continue
             response = conn.get_response(timeout=GET_RESPONSE_TIMEOUT)
-            if response != '' and response is not False:
+            if response is not False:
                 self.__game.queue_put(response)
+
+    def __check_server_connection(self, conn):
+        if not conn.is_connected():
+            if time.process_time() - self.__last_reconnect_try > RECONNECT_TRY_DELAY:
+                conn.try_reconnect()
+            return False
+        else:
+            return True
 
 
 class Game:
+
     def __init__(self):
         self.__game_title = 'Dont\'t u panic asshole'
         self.__settings = None
@@ -125,7 +136,7 @@ class Game:
         self.__screen.fill(colors.WHITE)
 
     def get_delta_time(self):
-        return self.__clock.get_time()/1000.0
+        return self.__clock.get_time()/SECOND_IN_MILISECONDS
 
     def quit(self):
         print("Bye bye :(")
@@ -143,16 +154,19 @@ class Game:
 if __name__ == "__main__":
     main = Game()
     main.init()
+    music_obj = MenuMusic()
     intro_obj = intro.Intro(main)
     login_obj = login.Login(main)
     main_menu_obj = main_menu.MainMenu(main)
     creators_menu_obj = creators_menu.CreatorsMenu(main)
     server_list_obj = server_list.ServerList(main)
     settings_obj = None
+    settings_controls_obj = controls.Controls(main)
     settings_video_obj = None
-    settings_controls_obj = None
     settings_audio_obj = None
-    game_obj = None
+    creators_obj = None
+    game_obj = GameRunner(main)
+    music_obj.start_music()
     while True:
         main.update_events()
         main.handle_quit_event()
@@ -170,14 +184,15 @@ if __name__ == "__main__":
             pass
         elif main.get_state() == gamestates.SETTINGS_VIDEO:
             pass
-        elif main.get_state() == gamestates.SETTINGS_CONTROLS:
-            pass
+        elif main.get_state() == gamestates.CONTROLS:
+            settings_controls_obj.loop()
         elif main.get_state() == gamestates.SETTINGS_AUDIO:
             pass
         elif main.get_state() == gamestates.CREATORS:
             creators_menu_obj.loop()
         elif main.get_state() == gamestates.GAME:
-            pass
+            music_obj.stop_music()
+            game_obj.loop()
         else:
             main.crash("Unknown game state")
         main.tick()

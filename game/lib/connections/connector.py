@@ -49,17 +49,17 @@ class Connector:
     def login_authorize(self, username, password):
         authorized_user = Login(username, password)
         try:
-            self.__socket.send(self.__serialize_object(authorized_user))
+            self.__socket.sendall(self.__serialize_object(authorized_user))
         except Exception as e:
             self.__is_connected = False
-            print(f'Error sending and receiving data from server (Login) {e}')
+            print(f'Error sending data from server (Login) {e}')
             return False
         return True
 
     def get_servers(self):
         servers_list = ServerList()
         try:
-            self.__socket.send(self.__serialize_object(servers_list))
+            self.__socket.sendall(self.__serialize_object(servers_list))
             server_response = self.__deserialize_object(self.__socket.recv(self.__MAX_PACKAGE))
             print(f'Server responded with {server_response}')
             if server_response['request_type'] == request_types.SERVER_LISTS:
@@ -69,6 +69,7 @@ class Connector:
         except Exception as e:
             print(f'Error sending and receiving data from server (Server list) {e}')
         return []
+        pass
 
     def get_response(self, timeout=None):
         try:
@@ -97,3 +98,4 @@ class Connector:
     @staticmethod
     def __deserialize_object(sending_object):
         return json.loads(pickle.loads(sending_object))
+

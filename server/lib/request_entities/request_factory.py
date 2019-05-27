@@ -43,6 +43,7 @@ class ServerList(RequestHandler):
     def handle(self, data, client):
         if client.is_logged():
             server_list = self._DB.make_query(f"SELECT name, server_ip, player_count FROM server")
+            print(server_list)
             return {"request_type": request_types.SERVER_LISTS, "response": server_list}
         else:
             raise IllegalAccessException
