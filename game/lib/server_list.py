@@ -58,16 +58,18 @@ class ServerList:
 
     def __refacotr_strings(self, server_list):
         servers_strings = []
+        first_row_length = 20
+        second_row_length = 34
         for server in server_list:
             server_info = ''
             i = 0
             for server_parameter in server:
                 string_to_add = str(server_parameter)
                 if i == 0:
-                    while len(string_to_add) < 20:
+                    while len(string_to_add) < first_row_length:
                         string_to_add += ' '
                 elif i == 1:
-                    while len(string_to_add) < 34:
+                    while len(string_to_add) < second_row_length:
                         string_to_add += ' '
                 server_info += string_to_add
                 i += 1
