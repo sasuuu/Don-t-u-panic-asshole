@@ -106,7 +106,7 @@ class Server(Thread):
         pos_y = 0
         while pos_y < self.__map_height:
             while pos_x < self.__map_width:
-                self.__chunks_list.append(Chunk((pos_x, pos_y)))
+                self.__chunks_list.append(Chunk((pos_x + int(CHUNK_WIDTH / 2), pos_y + int(CHUNK_HEIGHT / 2))))
                 pos_x = pos_x + CHUNK_WIDTH
             pos_x = 0
             pos_y = pos_y + CHUNK_HEIGHT
