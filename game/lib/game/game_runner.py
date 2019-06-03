@@ -12,12 +12,12 @@ class GameRunner:
         self.__game = game_object
         self.__main_hero_pos = tuple(map(lambda x: x/2, self.__game.get_screen().get_size()))
         self.__screen = self.__game.get_screen()
-        self.__main_hero = MainHero(game_object)
-        self.__main_hero_horizontal_speed = IDLE_SPEED
-        self.__main_hero_vertical_speed = IDLE_SPEED
         self.__map = Map(self.__game)
         self.__objects = ObjectGenerator.generate_objects()
         self.__objects.sort(key=lambda y: y.get_y())
+        self.__main_hero = MainHero(self, game_object)
+        self.__main_hero_horizontal_speed = IDLE_SPEED
+        self.__main_hero_vertical_speed = IDLE_SPEED
 
     def loop(self):
         self.__handle_events()
@@ -65,4 +65,11 @@ class GameRunner:
         for world_object in self.__objects:
             self.__screen.blit(world_object.get_sprite(), (world_object.get_x() - self.__main_hero.get_x(),
                                                            world_object.get_y() - self.__main_hero.get_y()))
+            # draw collision rect only for testing
+            # world_object.check_collision(self.__game.get_screen(), self.__main_hero.get_x(), self.__main_hero.get_y(),
+            #                            self.__main_hero.get_width(), self.__main_hero.get_height(),
+            #                           self.__main_hero.get_center_x(), self.__main_hero.get_center_y())
+
+    def get_objects(self):
+        return self.__objects
 
