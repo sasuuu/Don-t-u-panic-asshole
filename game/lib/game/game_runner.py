@@ -55,8 +55,9 @@ class GameRunner:
         return hero.get_move_speed() * self.__game.get_delta_time()
 
     def __transform(self):
-        self.__map.change_bias_x(self.__main_hero_horizontal_speed)
-        self.__map.change_bias_y(self.__main_hero_vertical_speed)
+        if not self.__main_hero.get_col_flag():
+            self.__map.change_bias_x(self.__main_hero_horizontal_speed)
+            self.__map.change_bias_y(self.__main_hero_vertical_speed)
         self.__main_hero.update_position(self.__main_hero_horizontal_speed, self.__main_hero_vertical_speed)
 
     def __draw(self):
