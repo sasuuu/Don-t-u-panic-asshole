@@ -87,7 +87,7 @@ class MainHero(Hero):
         self.__position_x += horizontal_speed
 
         for world_object in self.__objects:
-            if world_object.check_collision(self.__game.get_screen(), self.__position_x, self.__position_y, self._width,
+            if world_object.check_collision(self.__position_x, self.__position_y, self._width,
                                             self._height, self.__center_x, self.__center_y):
                 self.__col_flag = True
                 if horizontal_speed > 0:
@@ -102,7 +102,7 @@ class MainHero(Hero):
         # vertical check
         self.__position_y += vertical_speed
         for world_object in self.__objects:
-            if world_object.check_collision(self.__game.get_screen(), self.__position_x, self.__position_y, self._width,
+            if world_object.check_collision(self.__position_x, self.__position_y, self._width,
                                             self._height, self.__center_x, self.__center_y):
                 self.__col_flag = True
                 if vertical_speed > 0:

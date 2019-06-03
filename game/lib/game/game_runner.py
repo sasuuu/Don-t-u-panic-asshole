@@ -67,9 +67,9 @@ class GameRunner:
             self.__screen.blit(world_object.get_sprite(), (world_object.get_x() - self.__main_hero.get_x(),
                                                            world_object.get_y() - self.__main_hero.get_y()))
             # draw collision rect only for testing
-            world_object.draw_collision_rect(self.__game.get_screen(), self.__main_hero.get_x(), self.__main_hero.get_y(),
-                                             self.__main_hero.get_width(), self.__main_hero.get_height(),
-                                             self.__main_hero.get_center_x(), self.__main_hero.get_center_y())
+            # world_object.draw_collision_rect(self.__game.get_screen(), self.__main_hero.get_x(), self.__main_hero.get_y(),
+            #                                  self.__main_hero.get_width(), self.__main_hero.get_height(),
+            #                                  self.__main_hero.get_center_x(), self.__main_hero.get_center_y())
 
     def get_objects(self):
         return self.__objects
