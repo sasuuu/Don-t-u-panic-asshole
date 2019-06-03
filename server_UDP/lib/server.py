@@ -4,6 +4,7 @@ import sys
 import json
 import queue
 import pickle
+import time
 
 from threading import Thread, Lock
 
@@ -12,6 +13,7 @@ from lib import errors_provider as error
 from lib.db.db_connection import DataBase
 from lib.request_handler import RequestHandler
 from lib.model.chunk import Chunk
+from lib.model.client import Client
 
 QUEUE_SIZE = 20
 RECEIVE_TIMEOUT = 1
@@ -120,7 +122,20 @@ class Server(Thread):
     def run(self):
         while not self.__check_stop():
             self.__check_received_packages()
+            self.__check_clients_activity()
         self.__close_server()
+
+    def __check_clients_activity(self):
+        inactive_clients = []
+        for client in self.__connected_clients:
+            if not client.is_user_active():
+                inactive_clients.append(client)
+        for client in inactive_clients:
+            self.__remove_client(client)
+
+    def __remove_client(self, client):
+        print("Removing client...")
+        self.__connected_clients.remove(client)
 
     def __check_stop(self):
         self.__stop_signal_lock.acquire()
@@ -190,16 +205,40 @@ class Server(Thread):
             message = self.__received_packages.get()
             self.__handle_package(message)
 
+    def __check_user(self, address, key):
+        for client in self.__connected_clients:
+            if client.get_address() == address and client.get_auth_key() == key:
+                client.update_last_received_time(time.time())
+                return True
+            elif client.get_address() == address and client.get_auth_key() != key:
+                return False
+        self.__add_client(address, key)
+
+    def __add_client(self, address, key):
+        print("Adding new client...")
+        self.__connected_clients.append(Client(address, key))
+
     def __handle_package(self, package):
         print(package)
         data, address = package
-        deserialized_data = self.__deserialize_object(package)
-        request_type = self.__get_request_type(deserialized_data)
-        package_to_send = self.__request_handler.handle_request(request_type, deserialized_data)
-        self.__put_package_to_queue((package_to_send, address)),
+        deserialized_data = self.__deserialize_object(data)
+        client_auth_key = self.__get_key(deserialized_data)
+        if not self.__check_user(address, client_auth_key):
+            return
+        #request_type = self.__get_request_type(deserialized_data)
+        #package_to_send = self.__request_handler.handle_request(request_type, deserialized_data)
+        #self.__put_package_to_queue((package_to_send, address)),
 
     def __put_package_to_queue(self, package):
         self.__packages_to_send.put(package)
+
+    @staticmethod
+    def __get_key(data):
+        try:
+            return data['auth_key']
+        except KeyError as e:
+            print(f'Exception in parsing json file {e}')
+            return None
 
     @staticmethod
     def __get_request_type(data):

@@ -2,7 +2,8 @@
 class ChunkProvider:
 
     def __init__(self):
-        self.__all_chunks = self.__udp_repository.get_all_chunks()
+        #self.__all_chunks = self.__udp_repository.get_all_chunks()
+        pass
 
     def get_specified_chunk(self, chunk_list):
         returned_chunks = []
