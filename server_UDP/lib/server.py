@@ -16,7 +16,7 @@ from lib.model.chunk import Chunk
 from lib.model.client import Client
 
 QUEUE_SIZE = 20
-RECEIVE_TIMEOUT = 1
+RECEIVE_TIMEOUT = 10
 CHUNK_HEIGHT = 2160
 CHUNK_WIDTH = 3840
 
@@ -123,7 +123,27 @@ class Server(Thread):
         while not self.__check_stop():
             self.__check_received_packages()
             self.__check_clients_activity()
+            self.__check_if_clients_need_update()
         self.__close_server()
+
+    def __check_if_clients_need_update(self):
+        need_update_clients = []
+        for client in self.__connected_clients:
+            if client.need_update():
+                need_update_clients.append(client)
+        for client in need_update_clients:
+            self.__send_update_to_client(client)
+            client.generate_next_update_time()
+
+    def __send_update_to_client(self, client):
+        client_addr = client.get_address()
+        client_auth_key = client.get_auth_key()
+        update_data = {
+            "auth_key": client_auth_key,
+            "data": "TEST"
+        }
+        update_data = self.__serialize_object(update_data)
+        self.__put_package_to_queue((update_data, client_addr))
 
     def __check_clients_activity(self):
         inactive_clients = []
@@ -216,7 +236,7 @@ class Server(Thread):
 
     def __add_client(self, address, key):
         print("Adding new client...")
-        self.__connected_clients.append(Client(address, key))
+        self.__connected_clients.append(Client(address, key, None))
 
     def __handle_package(self, package):
         print(package)

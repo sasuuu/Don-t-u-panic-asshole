@@ -1,3 +1,2 @@
 GET_CHUNKS = "1"
 UPDATE_POSITION = "2"
-CHUNK = "3"
