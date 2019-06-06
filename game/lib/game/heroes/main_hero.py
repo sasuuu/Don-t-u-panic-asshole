@@ -3,6 +3,9 @@ import os
 import json
 from lib.game.heroes.hero import Hero
 from math import fabs
+from lib.game.equipment_and_crafting.equipment import Equipment
+from lib.game.items.stick import Stick
+from lib.game.items.hook import Hook
 
 main_hero_config = None
 main_hero_config_dir = "lib/config/heroes/main_hero_config.json"
@@ -71,6 +74,9 @@ class MainHero(Hero):
         self.__center_x = CENTER_X    # hero isn't exactly at center screen
         self.__center_y = CENTER_Y
         self.__standing = "right"
+        self.__equipment = Equipment()
+        self.__equipment.pick_up_item(Stick())
+        self.__equipment.pick_up_item(Hook())
 
     def get_character(self):
         return self.__character
@@ -196,3 +202,6 @@ class MainHero(Hero):
 
     def get_center_y(self):
         return self.__center_y
+
+    def get_equipment(self):
+        return self.__equipment

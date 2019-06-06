@@ -25,15 +25,18 @@ class ServerList:
         self.__server_list = None
         self.__server_strings = None
         self.__interactive_menu = None
+        self.__try_again = False
 
     def loop(self):
-        if self.__server_list is None:
+        if self.__server_list is None or self.__try_again is True:
             self.__server_list = self.__connector.get_servers()
             self.__server_strings = self.__refacotr_strings(self.__server_list)
             if not self.__server_list:
                 self.__interactive_menu = interactive_menu.InteractiveMenu(0.25, 0.2, 0.5, 0.6)
+                self.__try_again = True
             else:
                 self.__interactive_menu = interactive_menu.InteractiveMenu(0.25, 0.2, 0.5, 0.6, self.__server_strings)
+                self.__try_again = False
 
         events = self.__game.get_events()
         for event in events:

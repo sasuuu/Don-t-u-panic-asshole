@@ -1,10 +1,9 @@
 import pygame
+from random import randint
 
 
 class WorldObject:
 
-    __real_x = None
-    __real_y = None
     _x_coordinate = None
     _y_coordinate = None
     _height = None
@@ -14,6 +13,17 @@ class WorldObject:
     _move_left_corner_y = None
     _width_collision = None
     _height_collision = None
+
+    def __init__(self, x_coordinate, y_coordinate, width, height):
+        self._x_coordinate = x_coordinate
+        self._y_coordinate = y_coordinate
+        self._width = width
+        self._height = height
+        self._width_collision = width
+        self._height_collision = height
+        self._move_left_corner_x = 0
+        self._move_left_corner_y = 0
+        self._rand_sprite = randint(0, 3)
 
     def get_x(self):
         return self._x_coordinate
