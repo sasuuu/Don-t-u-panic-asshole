@@ -79,8 +79,9 @@ class GameRunner:
         self.__map.fill_screen_with_grass()
         self.__screen.blit(self.__main_hero.get_sprite(), self.__main_hero_pos)
         for world_object in self.__objects:
-            self.__screen.blit(world_object.get_sprite(), (world_object.get_x() - self.__main_hero.get_x(),
-                                                           world_object.get_y() - self.__main_hero.get_y()))
+            self.__screen.blit(world_object.get_sprite(),
+                               (world_object.get_x() - self.__main_hero.get_x()+self.__screen_size[0]/2,
+                                world_object.get_y() - self.__main_hero.get_y()+self.__screen_size[1]/2))
         marked_index = self.__main_hero.get_equipment().get_marked_index()
         for y in range(0, 5):
             if y == marked_index:
