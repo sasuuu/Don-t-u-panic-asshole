@@ -77,6 +77,8 @@ class MainHero(Hero):
         self.__equipment = Equipment()
         self.__equipment.pick_up_item(Stick())
         self.__equipment.pick_up_item(Hook())
+        self.__screen = self.__game.get_screen()
+        self.__screen_size = self.__screen.get_size()
 
     def get_character(self):
         return self.__character
@@ -87,40 +89,38 @@ class MainHero(Hero):
     def update_position(self, horizontal_speed, vertical_speed):
         self.__col_flag = False
         self.__objects = self.__game_runner.get_objects()
-        width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
-        hero_x, hero_y = width / 2, height / 2
         # horizontal check
         self.__position_x += horizontal_speed
 
         for world_object in self.__objects:
-            if world_object.check_collision(self.__position_x, self.__position_y, self._width,
+            if world_object.check_collision(self.__position_x-self.__screen_size[0]/2, self.__position_y-self.__screen_size[1]/2, self._width,
                                             self._height, self.__center_x, self.__center_y):
                 self.__col_flag = True
                 if horizontal_speed > 0:
                     # Hero]->[]
-                    self.__position_x = world_object.get_x() + world_object.get_mv_x() - hero_x - self._width \
+                    self.__position_x = world_object.get_x() + world_object.get_mv_x()  - self._width \
                                         - self.__center_x
                 else:
                     # [] <-[Hero
                     self.__position_x = world_object.get_x() + world_object.get_width_collision() + world_object.get_mv_x()\
-                                        - hero_x - self.__center_x
+                                         - self.__center_x
 
         # vertical check
         self.__position_y += vertical_speed
         for world_object in self.__objects:
-            if world_object.check_collision(self.__position_x, self.__position_y, self._width,
+            if world_object.check_collision(self.__position_x-self.__screen_size[0]/2, self.__position_y-self.__screen_size[1]/2, self._width,
                                             self._height, self.__center_x, self.__center_y):
                 self.__col_flag = True
                 if vertical_speed > 0:
                     #  \/ Hero Down
                     #  []
-                    self.__position_y = world_object.get_y() + world_object.get_mv_y() - hero_y - self._height\
+                    self.__position_y = world_object.get_y() + world_object.get_mv_y() - self._height\
                                         - self.__center_y
                 else:
                     #  []
                     #  /\ Hero Up
                     self.__position_y = world_object.get_y() + world_object.get_height_collision() \
-                                        + world_object.get_mv_y() - hero_y - self.__center_y
+                                        + world_object.get_mv_y()  - self.__center_y
 
     def get_sprite(self):
         actual_time = pygame.time.get_ticks()
