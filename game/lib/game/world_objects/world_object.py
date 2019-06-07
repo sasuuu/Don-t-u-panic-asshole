@@ -62,8 +62,8 @@ class WorldObject:
         actual_time = pygame.time.get_ticks()
 
     def check_collision(self, hero_pos_x, hero_pos_y, hero_width, hero_height, center_x, center_y):
-        x_object, y_object = self._x_coordinate - hero_pos_x, self._y_coordinate - hero_pos_y
         width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
+        x_object, y_object = self._x_coordinate - hero_pos_x, self._y_coordinate - hero_pos_y
         hero_x, hero_y = width / 2 + center_x, height / 2 + center_y
         if x_object + self._move_left_corner_x < hero_x < (x_object + self._move_left_corner_x + self._width_collision)\
                 or x_object + self._move_left_corner_x < (hero_x + hero_width) < (x_object + self._width_collision
