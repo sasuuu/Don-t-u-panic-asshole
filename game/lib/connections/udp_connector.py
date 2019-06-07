@@ -2,13 +2,10 @@ import socket
 import pickle
 import json
 from lib import errors_provider
-from lib.connections.request.login_data import Login
-from lib.connections.request.server_list import ServerList
 from lib.connections.request import request_types
 
 
-class Connector:
-
+class UdpConnector:
     def __init__(self):
         self.__SERVER_IP_ADDRESS = None
         self.__SERVER_PORT = None
@@ -18,13 +15,6 @@ class Connector:
         self.__server_config_file_dir = "config/server_config.json"
         self.__read_config()
         self.__bind_socket()
-
-    def try_reconnect(self):
-        self.__bind_socket()
-        return self.__is_connected
-
-    def is_connected(self):
-        return self.__is_connected
 
     def __read_config(self):
         try:
@@ -39,37 +29,12 @@ class Connector:
 
     def __bind_socket(self):
         try:
-            self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.__socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             self.__socket.connect((self.__SERVER_IP_ADDRESS, self.__SERVER_PORT))
             self.__is_connected = True
         except socket.error as exc:
             self.__is_connected = False
             print(f'Exception while connecting to server {exc}')
-
-    def login_authorize(self, username, password):
-        authorized_user = Login(username, password)
-        try:
-            self.__socket.sendall(self.__serialize_object(authorized_user))
-        except Exception as e:
-            self.__is_connected = False
-            print(f'Error sending data from server (Login) {e}')
-            return False
-        return True
-
-    def get_servers(self):
-        servers_list = ServerList()
-        try:
-            self.__socket.sendall(self.__serialize_object(servers_list))
-            server_response = self.__deserialize_object(self.__socket.recv(self.__MAX_PACKAGE))
-            print(f'Server responded with {server_response}')
-            if server_response['request_type'] == request_types.SERVER_LISTS:
-                return server_response['response']
-            else:
-                raise Exception
-        except Exception as e:
-            print(f'Error sending and receiving data from server (Server list) {e}')
-        return []
-        pass
 
     def get_response(self, timeout=None):
         try:
@@ -98,4 +63,3 @@ class Connector:
     @staticmethod
     def __deserialize_object(sending_object):
         return json.loads(pickle.loads(sending_object))
-

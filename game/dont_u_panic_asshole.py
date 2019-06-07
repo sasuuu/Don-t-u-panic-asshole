@@ -21,10 +21,11 @@ from lib.game_menu import GameMenu
 QUEUE_SIZE = 20
 RECONNECT_TRY_DELAY = 10
 GET_RESPONSE_TIMEOUT = 2
-SECOND_IN_MILISECONDS = 1000.0
+SECOND_IN_MILLISECONDS = 1000.0
 
 
 class TcpConnectionThread(threading.Thread):
+
     def __init__(self, game):
         threading.Thread.__init__(self)
         self.__game = game
@@ -49,6 +50,7 @@ class TcpConnectionThread(threading.Thread):
 
 
 class Game:
+
     def __init__(self):
         self.__game_title = 'Dont\'t u panic asshole'
         self.__settings = None
@@ -65,12 +67,6 @@ class Game:
         self.__thread.start()
         self.__last_state = None
 
-    def get_last_state(self):
-        return self.__last_state
-
-    def set_last_state(self, state):
-        self.__last_state = state
-
     def thread_status(self):
         return self.__thread_stop
 
@@ -83,10 +79,11 @@ class Game:
     def get_server_responses(self):
         return self.__server_responses
 
-    def __get_data_from_queue(self):
-        self.__server_responses.clear()
-        while not self.__queue.empty():
-            self.__server_responses.append(self.__queue.get())
+    def get_last_state(self):
+        return self.__last_state
+
+    def set_last_state(self, state):
+        self.__last_state = state
 
     def get_screen(self):
         return self.__screen
@@ -96,6 +93,11 @@ class Game:
 
     def update_events(self):
         self.__events = pygame.event.get()
+
+    def __get_data_from_queue(self):
+        self.__server_responses.clear()
+        while not self.__queue.empty():
+            self.__server_responses.append(self.__queue.get())
 
     def get_settings(self):
         file_exists = os.path.isfile(self.__settings_file)
@@ -143,7 +145,7 @@ class Game:
         self.__screen.fill(colors.WHITE)
 
     def get_delta_time(self):
-        return self.__clock.get_time() / SECOND_IN_MILISECONDS
+        return self.__clock.get_time() / SECOND_IN_MILLISECONDS
 
     def quit(self):
         print("Bye bye :(")

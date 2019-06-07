@@ -17,6 +17,7 @@ CONTROLS_TITLE_SIZE = game_config['controls_title_size'] if game_config is not N
 
 
 class Controls:
+
     def __init__(self, game):
         self.__game = game
         self.__size = self.__game.get_screen().get_size()
