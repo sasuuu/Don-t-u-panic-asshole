@@ -1,11 +1,11 @@
 from lib import object_types
+from lib.model.game_object import GameObject
 
 
-class Character:
+class Character(GameObject):
 
-    def __init__(self, nick, health, position, items):
-        self.type = object_types.CHARACTER
+    def __init__(self, idx, nick, health, position, items):
+        super(Character, self).__init__(idx, position, object_types.CHARACTER)
         self.nick = nick
         self.health = health
-        self.position = position
         self.items = items
