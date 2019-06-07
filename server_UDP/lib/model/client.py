@@ -2,14 +2,15 @@ import time
 import random
 
 ACTIVE_TIME_IN_SECONDS = 10
-MIN_NEXT_SEND_DELAY = 400
-MAX_NEXT_SEND_DELAY = 500
+MIN_NEXT_SEND_DELAY = 2000
+MAX_NEXT_SEND_DELAY = 2500
 MILLISECONDS_IN_SECOND = 1000
 
 
 class Client:
 
-    def __init__(self, address, auth_key, client_character):
+    def __init__(self, nick, address, auth_key, client_character):
+        self.__nick = nick
         self.__address = address
         self.__auth_key = auth_key
         self.__last_received_time = time.time()
