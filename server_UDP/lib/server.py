@@ -23,7 +23,7 @@ QUEUE_SIZE = 20
 CHUNK_HEIGHT = 2160
 CHUNK_WIDTH = 3840
 CHARACTER_START_HEALTH = 100
-CHARACTER_START_POSITION = (100, 5832)
+CHARACTER_START_POSITION = (100, 100)
 POS_X = 0
 POS_Y = 1
 
@@ -62,6 +62,15 @@ class Server(Thread):
         self.__clients_characters = []
         print('Server initialized')
 
+    def get_client(self, address, auth_key):
+        for client in self.__connected_clients:
+            if client.get_address() == address and client.get_auth_key() == auth_key:
+                return client
+        return None
+
+    def get_chunks_list(self):
+        return self.__chunks_list
+
     def __get_next_id(self):
         self.object_id = self.object_id + 1
         return self.object_id
@@ -86,7 +95,7 @@ class Server(Thread):
         while not self.__check_stop():
             self.__check_received_packages()
             self.__check_clients_activity()
-            self.__check_if_clients_need_update()
+            #self.__check_if_clients_need_update()
         self.__close_server()
 
     def __check_if_clients_need_update(self):
@@ -103,9 +112,10 @@ class Server(Thread):
         client_addr = client.get_address()
         client_auth_key = client.get_auth_key()
         client_character = client.get_client_character()
-        close_objects = self.get_close_objects(client_character)
-        for obj in close_objects:
+        for obj in self.get_close_objects(client_character):
             update_data.append(obj)
+        for character in self.get_close_characters(client_character):
+            update_data.append(character)
         package = ServerUpdate(client_auth_key, update_data)
         package = self.__serialize_object(package)
         self.__put_package_to_queue((package, client_addr))
@@ -208,24 +218,29 @@ class Server(Thread):
                 return character
         return None
 
+    def find_client_by_character(self, character):
+        for client in self.__connected_clients:
+            if client.get_client_character() == character:
+                return client
+
     def __create_new_character(self, nick):
         character = Character(self.__get_next_id(), nick, CHARACTER_START_HEALTH, CHARACTER_START_POSITION, [])
         self.__clients_characters.append(character)
         return character
 
-    def __find_chunk_index_by_position(self, position):
+    def find_chunk_index_by_position(self, position):
         pos_x, pos_y = position
         chunks_in_row = math.ceil(self.__map_width / CHUNK_WIDTH)
         chunk_index = int(pos_x / CHUNK_WIDTH) + int(pos_y / CHUNK_HEIGHT) * chunks_in_row
         return chunk_index
 
     def __add_character_to_chunk(self, character):
-        chunk_index = self.__find_chunk_index_by_position(character.position)
+        chunk_index = self.find_chunk_index_by_position(character.position)
         self.__chunks_list[chunk_index].characters_list.append(character)
         print(f"Character added to chunk {chunk_index} at position: {self.__chunks_list[chunk_index].position}")
 
     def __remove_character_from_chunk(self, character):
-        chunk_index = self.__find_chunk_index_by_position(character.position)
+        chunk_index = self.find_chunk_index_by_position(character.position)
         self.__chunks_list[chunk_index].characters_list.remove(character)
         print(f"Character removed from chunk {chunk_index} at position: {self.__chunks_list[chunk_index].position}")
 
@@ -241,14 +256,14 @@ class Server(Thread):
 
     def __get_chunk_indexes_around(self, position):
         indexes = []
-        character_chunk_index = self.__find_chunk_index_by_position(position)
+        character_chunk_index = self.find_chunk_index_by_position(position)
         character_chunk_position = self.__chunks_list[character_chunk_index].position
         for offset_x in (-CHUNK_WIDTH, 0, CHUNK_WIDTH):
             for offset_y in (-CHUNK_HEIGHT, 0, CHUNK_HEIGHT):
                 chunk_pos_x = character_chunk_position[POS_X] + offset_x
                 chunk_pos_y = character_chunk_position[POS_Y] + offset_y
                 if 0 <= chunk_pos_x <= self.__map_width and 0 <= chunk_pos_y <= self.__map_height:
-                    indexes.append(self.__find_chunk_index_by_position((chunk_pos_x, chunk_pos_y)))
+                    indexes.append(self.find_chunk_index_by_position((chunk_pos_x, chunk_pos_y)))
         return indexes
 
     def get_close_objects(self, character):
@@ -257,16 +272,23 @@ class Server(Thread):
         for index in chunk_indexes:
             for obj in self.__chunks_list[index].object_list:
                 close_objects.append(obj)
-            for character in self.__chunks_list[index].characters_list:
-                close_objects.append(character)
         return close_objects
+
+    def get_close_characters(self, character):
+        close_characters = []
+        chunk_indexes = self.__get_chunk_indexes_around(character.position)
+        for index in chunk_indexes:
+            for character in self.__chunks_list[index].characters_list:
+                close_characters.append(character)
+        return close_characters
 
     def __handle_package(self, package):
         print(package)
         package_to_send = self.__request_handler.handle_request(package)
         if package_to_send is None:
             return
-        self.__put_package_to_queue(package_to_send),
+        for package in package_to_send:
+            self.__put_package_to_queue(package)
 
     def __put_package_to_queue(self, package):
         self.__packages_to_send.put(package)
