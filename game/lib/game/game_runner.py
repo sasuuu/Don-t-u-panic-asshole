@@ -1,6 +1,7 @@
 import pygame
 from lib.game.heroes.main_hero import MainHero
 from lib.game.map import Map
+from lib import gamestates
 
 IDLE_SPEED = 0
 
@@ -27,6 +28,8 @@ class GameRunner:
             self.__handle_keyup_events(event)
 
     def __handle_keydown_events(self, event):
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            self.__game.set_state(gamestates.GAME_MENU)
         if event.type == pygame.KEYDOWN and event.key == pygame.K_w:
             self.__main_hero_vertical_speed = -self.__hero_move_converter(self.__main_hero)
             self.__main_hero.set_movement_up()

@@ -75,6 +75,9 @@ class Controls:
         self.__exit_y = self.__size[1] / 8 + 10
         self.__exit_x_length = 100
         self.__exit_y_length = 40
+        self.__left_mouse_button = 0
+        self.__mouse_x = 0
+        self.__mouse_y = 1
 
     def loop(self):
 
@@ -106,13 +109,16 @@ class Controls:
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
 
-        if self.__exit_x + self.__exit_x_length > mouse[0] > self.__exit_x \
-                and self.__exit_y + self.__exit_y_length > mouse[1] > self.__exit_y:
+        if self.__exit_x + self.__exit_x_length > mouse[self.__mouse_x] > self.__exit_x \
+                and self.__exit_y + self.__exit_y_length > mouse[self.__mouse_y] > self.__exit_y:
             self.__menu.render_to(self.__game.get_screen(), (self.__exit_x, self.__exit_y), "Back", GREEN)
             pygame.draw.rect(self.__game.get_screen(), GREEN, (self.__exit_x, self.__exit_y,
                                                                self.__exit_x_length, self.__exit_y_length), 2)
-            if click[0]:
-                self.__game.set_state(gamestates.MAIN_MENU)
+            if click[self.__left_mouse_button]:
+                if self.__game.get_last_state() == gamestates.GAME_MENU:
+                    self.__game.set_state(gamestates.GAME_MENU)
+                else:
+                    self.__game.set_state(gamestates.MAIN_MENU)
         else:
             self.__menu.render_to(self.__game.get_screen(), (self.__exit_x, self.__exit_y), "Back", BLACK)
             pygame.draw.rect(self.__game.get_screen(), BLACK, (self.__exit_x, self.__exit_y,
