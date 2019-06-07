@@ -10,7 +10,7 @@ class GameRunner:
 
     def __init__(self, game_object):
         self.__game = game_object
-        self.__main_hero_pos = tuple(map(lambda x: x/2, self.__game.get_screen().get_size()))
+        self.__main_hero_pos = tuple(map(lambda x: x / 2, self.__game.get_screen().get_size()))
         self.__screen = self.__game.get_screen()
         self.__screen_size = self.__screen.get_size()
         self.__map = Map(self.__game)
@@ -25,6 +25,8 @@ class GameRunner:
         self.__1_key_value = 49
         self.__lower_margin = 84
         self.__shift_from_middle = 160
+        self.__x_index = 0
+        self.__y_index = 1
 
     def loop(self):
         self.__handle_events()
@@ -66,7 +68,7 @@ class GameRunner:
         if event.type == pygame.KEYDOWN and (event.key == pygame.K_1 or event.key == pygame.K_2 or
                                              event.key == pygame.K_3 or event.key == pygame.K_4 or
                                              event.key == pygame.K_5):
-            value = event.key-self.__1_key_value
+            value = event.key - self.__1_key_value
             self.__main_hero.get_equipment().mark_item(value)
 
     def __transform(self):
@@ -80,31 +82,31 @@ class GameRunner:
         self.__screen.blit(self.__main_hero.get_sprite(), self.__main_hero_pos)
         for world_object in self.__objects:
             self.__screen.blit(world_object.get_sprite(),
-                               (world_object.get_x() - self.__main_hero.get_x()+self.__screen_size[0]/2,
-                                world_object.get_y() - self.__main_hero.get_y()+self.__screen_size[1]/2))
-            # world_object.draw_collision_rect(self.__screen, self.__main_hero.get_x()-self.__screen_size[0]/2, self.__main_hero.get_y()-self.__screen_size[1]/2,
-            #                                  self.__main_hero.get_width(), self.__main_hero.get_height(),
-            #                                  self.__main_hero.get_center_x(), self.__main_hero.get_center_y())
-
+                               (
+                               world_object.get_x() - self.__main_hero.get_x() + self.__screen_size[self.__x_index] / 2,
+                               world_object.get_y() - self.__main_hero.get_y()
+                               + self.__screen_size[self.__y_index] / 2))
         marked_index = self.__main_hero.get_equipment().get_marked_index()
         for y in range(0, 5):
             if y == marked_index:
                 self.__screen.blit(self.__marked_slot_sprite,
-                                   ((self.__screen_size[0]/2)+y*self.__eq_slot_width-self.__shift_from_middle,
-                                    self.__screen_size[1]-self.__lower_margin))
+                                   ((self.__screen_size[self.__x_index] / 2) + y * self.__eq_slot_width
+                                    - self.__shift_from_middle,
+                                    self.__screen_size[self.__y_index] - self.__lower_margin))
 
             else:
                 self.__screen.blit(self.__eq_slot_sprite,
-                                   ((self.__screen_size[0]/2)+y*self.__eq_slot_width-self.__shift_from_middle,
-                                    self.__screen_size[1]-self.__lower_margin))
+                                   ((self.__screen_size[self.__x_index] / 2) + y * self.__eq_slot_width
+                                    - self.__shift_from_middle,
+                                    self.__screen_size[self.__y_index] - self.__lower_margin))
             if self.__main_hero.get_equipment().get_item_by_index(y) is not None:
                 item_sprite = self.__main_hero.get_equipment()
                 item_sprite = item_sprite.get_item_by_index(y)
                 item_sprite = item_sprite.get_sprite()
                 self.__screen.blit(item_sprite,
-                                   ((self.__screen_size[0] / 2) + y * self.__eq_slot_width - self.__shift_from_middle,
-                                    self.__screen_size[1] - self.__lower_margin))
+                                   ((self.__screen_size[self.__x_index] / 2) + y * self.__eq_slot_width
+                                    - self.__shift_from_middle,
+                                    self.__screen_size[self.__y_index] - self.__lower_margin))
 
     def get_objects(self):
         return self.__objects
-
