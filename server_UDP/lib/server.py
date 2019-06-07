@@ -6,6 +6,7 @@ import queue
 import pickle
 import time
 import jsonpickle
+import math
 
 from threading import Thread, Lock
 
@@ -16,63 +17,15 @@ from lib.model.chunk import Chunk
 from lib.model.client import Client
 from lib.model.server_update import ServerUpdate
 from lib.model.character import Character
+from lib.package_threads import ReceivePackagesThread, SendPackagesThread
 
 QUEUE_SIZE = 20
-RECEIVE_TIMEOUT = 10
 CHUNK_HEIGHT = 2160
 CHUNK_WIDTH = 3840
 CHARACTER_START_HEALTH = 100
-CHARACTER_START_POSITION = (100, 100)
-
-
-class ReceivePackagesThread(Thread):
-    def __init__(self, sock, q, max_package):
-        Thread.__init__(self)
-        self.__socket = sock
-        self.__queue = q
-        self.__max_package = max_package
-        self.__running = True
-
-    def stop(self):
-        self.__running = False
-
-    def run(self):
-        self.__socket.settimeout(RECEIVE_TIMEOUT)
-        while self.__running:
-            self.__get_package()
-
-    def __get_package(self):
-        try:
-            package = self.__socket.recvfrom(self.__max_package)
-            if package:
-                self.__put_message(package)
-        except socket.timeout:
-            pass
-        except Exception as e:
-            print(f'Error receiving data from clients {e}')
-
-    def __put_message(self, package):
-        self.__queue.put(package)
-
-
-class SendPackagesThread(Thread):
-    def __init__(self, sock, q):
-        Thread.__init__(self)
-        self.__socket = sock
-        self.__queue = q
-        self.__running = True
-
-    def stop(self):
-        self.__running = False
-
-    def run(self):
-        while self.__running:
-            self.__send_package()
-
-    def __send_package(self):
-        while not self.__queue.empty():
-            data, address = self.__queue.get()
-            self.__socket.sendto(data, address)
+CHARACTER_START_POSITION = (100, 5832)
+POS_X = 0
+POS_Y = 1
 
 
 class Server(Thread):
@@ -115,9 +68,7 @@ class Server(Thread):
                 pos_x = pos_x + CHUNK_WIDTH
             pos_x = 0
             pos_y = pos_y + CHUNK_HEIGHT
-
-        for chunk in self.__chunks_list:
-            print(chunk.position)
+        print(self.__chunks_list.__len__())
 
     def stop(self):
         self.__stop_signal_lock.acquire()
@@ -141,9 +92,13 @@ class Server(Thread):
             client.generate_next_update_time()
 
     def __send_update_to_client(self, client):
+        update_data = []
         client_addr = client.get_address()
         client_auth_key = client.get_auth_key()
-        update_data = []
+        client_character = client.get_client_character()
+        close_objects = self.get_close_objects(client_character)
+        for obj in close_objects:
+            update_data.append(obj)
         package = ServerUpdate(client_auth_key, update_data)
         package = self.__serialize_object(package)
         self.__put_package_to_queue((package, client_addr))
@@ -231,7 +186,7 @@ class Server(Thread):
             message = self.__received_packages.get()
             self.__handle_package(message)
 
-    def __check_user(self, address, key):
+    def check_user(self, address, key):
         for client in self.__connected_clients:
             if client.get_address() == address and client.get_auth_key() == key:
                 client.update_last_received_time(time.time())
@@ -251,17 +206,19 @@ class Server(Thread):
         self.__clients_characters.append(character)
         return character
 
+    def __find_chunk_index_by_position(self, position):
+        pos_x, pos_y = position
+        chunks_in_row = math.ceil(self.__map_width / CHUNK_WIDTH)
+        chunk_index = int(pos_x / CHUNK_WIDTH) + int(pos_y / CHUNK_HEIGHT) * chunks_in_row
+        return chunk_index
+
     def __add_character_to_chunk(self, character):
-        pos_x, pos_y = character.position
-        chunks_in_row = int(self.__map_width/CHUNK_WIDTH)
-        chunk_index = int(pos_x/CHUNK_WIDTH) + int(pos_y/CHUNK_WIDTH) * chunks_in_row
+        chunk_index = self.__find_chunk_index_by_position(character.position)
         self.__chunks_list[chunk_index].characters_list.append(character)
         print(f"Character added to chunk {chunk_index} at position: {self.__chunks_list[chunk_index].position}")
 
     def __remove_character_from_chunk(self, character):
-        pos_x, pos_y = character.position
-        chunks_in_row = int(self.__map_width / CHUNK_WIDTH)
-        chunk_index = int(pos_x / CHUNK_WIDTH) + int(pos_y / CHUNK_WIDTH) * chunks_in_row
+        chunk_index = self.__find_chunk_index_by_position(character.position)
         self.__chunks_list[chunk_index].characters_list.remove(character)
         print(f"Character removed from chunk {chunk_index} at position: {self.__chunks_list[chunk_index].position}")
 
@@ -275,42 +232,38 @@ class Server(Thread):
         self.__connected_clients.append(client)
         return client
 
+    def __get_chunk_indexes_around(self, position):
+        indexes = []
+        character_chunk_index = self.__find_chunk_index_by_position(position)
+        character_chunk_position = self.__chunks_list[character_chunk_index].position
+        for offset_x in (-CHUNK_WIDTH, 0, CHUNK_WIDTH):
+            for offset_y in (-CHUNK_HEIGHT, 0, CHUNK_HEIGHT):
+                chunk_pos_x = character_chunk_position[POS_X] + offset_x
+                chunk_pos_y = character_chunk_position[POS_Y] + offset_y
+                if 0 <= chunk_pos_x <= self.__map_width and 0 <= chunk_pos_y <= self.__map_height:
+                    indexes.append(self.__find_chunk_index_by_position((chunk_pos_x, chunk_pos_y)))
+        return indexes
+
     def get_close_objects(self, character):
         close_objects = []
-        chunk_indexes = []
-        pos_x, pos_y = character.position
-        chunks_in_row = int(self.__map_width / CHUNK_WIDTH)
-        chunk_index = int(pos_x / CHUNK_WIDTH) + int(pos_y / CHUNK_WIDTH) * chunks_in_row
+        chunk_indexes = self.__get_chunk_indexes_around(character.position)
+        for index in chunk_indexes:
+            for obj in self.__chunks_list[index].object_list:
+                close_objects.append(obj)
+            for character in self.__chunks_list[index].characters_list:
+                close_objects.append(character)
         return close_objects
 
     def __handle_package(self, package):
         print(package)
         package_to_send = self.__request_handler.handle_request(package)
+        if package_to_send is None:
+            return
         self.__put_package_to_queue(package_to_send),
 
     def __put_package_to_queue(self, package):
         self.__packages_to_send.put(package)
 
     @staticmethod
-    def __get_key(data):
-        try:
-            return data['auth_key']
-        except KeyError as e:
-            print(f'Exception in parsing json file {e}')
-            return None
-
-    @staticmethod
-    def __get_request_type(data):
-        try:
-            return data['type']
-        except KeyError as e:
-            print(f'Exception in parsing json file {e}')
-            return None
-
-    @staticmethod
     def __serialize_object(sending_object):
         return pickle.dumps(jsonpickle.encode(sending_object))
-
-    @staticmethod
-    def __deserialize_object(sending_object):
-        return json.loads(pickle.loads(sending_object))

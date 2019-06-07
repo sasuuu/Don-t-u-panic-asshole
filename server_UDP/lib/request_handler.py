@@ -39,16 +39,28 @@ class RequestHandler:
         return package_to_send
 
     def __handle_position_update(self, data, address):
+        auth_key = self.__get_key(data)
+        data = self.__get_data(data)
+        if not self.__server.check_user(address, auth_key):
+            return None
         data_to_send = []
         package_to_send = (data_to_send, address)
         return package_to_send
 
     def __handle_get_object(self, data, address):
+        auth_key = self.__get_key(data)
+        data = self.__get_data(data)
+        if not self.__server.check_user(address, auth_key):
+            return None
         data_to_send = []
         package_to_send = (data_to_send, address)
         return package_to_send
 
     def __handle_attack(self, data, address):
+        auth_key = self.__get_key(data)
+        data = self.__get_data(data)
+        if not self.__server.check_user(address, auth_key):
+            return None
         data_to_send = []
         package_to_send = (data_to_send, address)
         return package_to_send
