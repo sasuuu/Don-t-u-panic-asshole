@@ -112,7 +112,10 @@ class Controls:
             pygame.draw.rect(self.__game.get_screen(), GREEN, (self.__exit_x, self.__exit_y,
                                                                self.__exit_x_length, self.__exit_y_length), 2)
             if click[0]:
-                self.__game.set_state(gamestates.MAIN_MENU)
+                if self.__game.get_last_state() == gamestates.GAME_MENU:
+                    self.__game.set_state(gamestates.GAME_MENU)
+                else:
+                    self.__game.set_state(gamestates.MAIN_MENU)
         else:
             self.__menu.render_to(self.__game.get_screen(), (self.__exit_x, self.__exit_y), "Back", BLACK)
             pygame.draw.rect(self.__game.get_screen(), BLACK, (self.__exit_x, self.__exit_y,

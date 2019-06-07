@@ -16,6 +16,7 @@ from lib import server_list
 from lib import creators_menu
 from lib import controls
 from lib.connections import connector
+from lib.game_menu import GameMenu
 
 QUEUE_SIZE = 20
 RECONNECT_TRY_DELAY = 10
@@ -62,6 +63,13 @@ class Game:
         self.__thread = TcpConnectionThread(self)
         self.__thread_stop = False
         self.__thread.start()
+        self.__last_state = None
+
+    def get_last_state(self):
+        return self.__last_state
+
+    def set_last_state(self, state):
+        self.__last_state = state
 
     def thread_status(self):
         return self.__thread_stop
@@ -159,6 +167,7 @@ if __name__ == "__main__":
     main_menu_obj = main_menu.MainMenu(main)
     creators_menu_obj = creators_menu.CreatorsMenu(main)
     server_list_obj = server_list.ServerList(main)
+    game_menu_obj = GameMenu(main)
     settings_obj = None
     settings_controls_obj = controls.Controls(main)
     settings_video_obj = None
@@ -192,6 +201,8 @@ if __name__ == "__main__":
         elif main.get_state() == gamestates.GAME:
             music_obj.stop_music()
             game_obj.loop()
+        elif main.get_state() == gamestates.GAME_MENU:
+            game_menu_obj.loop()
         else:
             main.crash("Unknown game state")
         main.tick()
