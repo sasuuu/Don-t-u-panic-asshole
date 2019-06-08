@@ -1,5 +1,6 @@
 import pygame
 from lib.game.heroes.main_hero import MainHero
+from lib.game.heroes.hero import Hero
 from lib.game.map import Map
 from lib.game.object_generator import ObjectGenerator
 from lib.connections.request import request_types
@@ -32,6 +33,7 @@ class GameRunner:
         self.__y_index = 1
         self.__wait_for_data = True
         self.__hero_data = None
+        self.__enemy = None
 
     def __create_hero(self, hero_data):
         if self.__main_hero is None:
@@ -48,8 +50,16 @@ class GameRunner:
         self.__game.create_udp_connection_thread()
         if self.__wait_for_data:
             self.__hero_data = self.__check_server_response()
-            if self.__hero_data is not None:
-                self.__create_hero(self.__hero_data['data'][0])
+            if self.__hero_data is not None and self.__hero_data[1] == request_types.UDP_LOGIN:
+                self.__create_hero(self.__hero_data[0]['data'][0])
+            elif self.__hero_data is not None and self.__hero_data[1] == 4:
+                if self.__enemy is None:
+                    self.__hero_data = self.__hero_data[0]['data'][0]
+                    self.__enemy = Hero(self.__hero_data['position']['py/tuple'])
+                    self.__objects.append(self.__enemy)
+                else:
+                    self.__hero_data = self.__hero_data[0]['data'][0]
+                    self.__enemy.set_position(self.__hero_data['position']['py/tuple'])
         if self.__main_hero is not None:
             self.__handle_events()
             self.__transform()
@@ -136,13 +146,12 @@ class GameRunner:
     def __check_server_response(self):
         server_responses = self.__game.get_udp_server_responses()
         for response in server_responses:
-            if response['type'] != request_types.UDP_LOGIN:
-                continue
-            if response['auth_key'] is not None:
-                print("Hero data acquired")
-                self.__waiting_for_data = False
-                return response
+            if response['type'] == request_types.UDP_LOGIN:
+                print('hero data got')
+                return [response, request_types.UDP_LOGIN]
+            if response['type'] == 4:
+                print('enemy data got')
+                return [response, 4]
             else:
                 print("Character creation failure")
-                self.__waiting_for_data = False
                 return None

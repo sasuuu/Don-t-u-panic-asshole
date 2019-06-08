@@ -19,8 +19,7 @@ from lib.connections import connector
 from lib.connections import udp_connector
 from lib.connections.request import request_types
 from lib.game_menu import GameMenu
-
-
+import random
 
 QUEUE_SIZE = 20
 RECONNECT_TRY_DELAY = 10
@@ -61,16 +60,20 @@ class UdpConnectionThread(threading.Thread):
 
     def run(self):
         print('udp started')
+        last_received = time.time()
         conn = self.__game.get_udp_connector()
-        conn.send_packet(request_types.UDP_LOGIN, [self.__game.get_logged_user()], 8)
+        key = random.randint(0, 100)
+        conn.send_packet(request_types.UDP_LOGIN, [self.__game.get_logged_user()], key)
         while not self.__game.udp_thread_status():
-            response = conn.get_response(timeout=5)
+            response = conn.get_response()
             if response is not False:
                 self.__game.udp_queue_put(response)
-            if response == 0:
+                last_received = time.time()
+            elif time.time() - last_received > 10:
                 self.__game.set_state(gamestates.MAIN_MENU)
                 self.__game.stop_udp()
         print('udp thread terminated')
+        self.__game.remove_udp_thread()
 
 
 class UdpSenderThread(threading.Thread):
@@ -83,13 +86,15 @@ class UdpSenderThread(threading.Thread):
         print('sender created')
         conn = self.__game.get_udp_connector()
         last_send = time.time()
+        key = random.randint(0, 100)
         while not self.__game.udp_thread_status():
             if time.time() - last_send > 1:
                 x = self.__hero.get_x()
                 y = self.__hero.get_y()
                 data = [x, y]
-                conn.send_packet(request_types.UDP_UPDATE_POSITION, data, 8)
+                conn.send_packet(request_types.UDP_UPDATE_POSITION, data, key)
         print('sender thread terminated')
+        self.__game.remove_udp_sender()
 
 
 class Game:
@@ -112,7 +117,16 @@ class Game:
         self.__udp_send_thread = None
         self.__tcp_thread_stop = False
         self.__udp_thread_stop = False
+        self.__logged_user = None
         self.__tcp_thread.start()
+        self.__udp_connector_lock = threading.Lock()
+
+    def remove_udp_thread(self):
+        self.__udp_thread = None
+        self.__udp_thread_stop = False
+
+    def remove_udp_sender(self):
+        self.__udp_send_thread = None
 
     def pass_hero(self, hero):
         self.__udp_send_thread = UdpSenderThread(self, hero)
@@ -129,6 +143,12 @@ class Game:
 
     def get_tcp_connector(self):
         return self.__tcp_connector
+
+    def set_logged_user(self, user):
+        self.__logged_user = user
+
+    def get_logged_user(self):
+        return self.__logged_user
 
     def get_udp_connector(self):
         return self.__udp_connector

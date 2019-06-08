@@ -1,6 +1,7 @@
 import socket
 import pickle
 import json
+import random
 from lib import errors_provider
 from lib.connections.request.packet import Packet
 
@@ -43,9 +44,9 @@ class UdpConnector:
             return server_response
         except socket.timeout:
             self.__socket.settimeout(None)
-            return 0
         except Exception as e:
             print(f'Error receiving data from server {e}')
+        print('elo')
         return False
 
     def send_packet(self, request_type, data: [], auth_key):
