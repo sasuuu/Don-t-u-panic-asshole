@@ -2,6 +2,8 @@ import pygame
 from lib.game.heroes.main_hero import MainHero
 from lib.game.map import Map
 from lib.game.object_generator import ObjectGenerator
+from lib.connections.request import request_types
+
 
 IDLE_SPEED = 0
 
@@ -14,24 +16,44 @@ class GameRunner:
         self.__screen = self.__game.get_screen()
         self.__screen_size = self.__screen.get_size()
         self.__map = Map(self.__game)
+        self.__udp_connector = self.__game.get_udp_connector()
         self.__objects = ObjectGenerator.generate_objects()
         self.__objects.sort(key=lambda y: y.get_y())
-        self.__main_hero = MainHero(self, game_object)
+        self.__main_hero = None
         self.__main_hero_horizontal_speed = IDLE_SPEED
         self.__main_hero_vertical_speed = IDLE_SPEED
-        self.__eq_slot_sprite = self.__main_hero.get_equipment().get_background()
+        self.__eq_slot_sprite = None
         self.__eq_slot_width = 64
-        self.__marked_slot_sprite = self.__main_hero.get_equipment().get_marked_background()
+        self.__marked_slot_sprite = None
         self.__1_key_value = 49
         self.__lower_margin = 84
         self.__shift_from_middle = 160
         self.__x_index = 0
         self.__y_index = 1
+        self.__wait_for_data = True
+        self.__hero_data = None
+
+    def __create_hero(self, hero_data):
+        if self.__main_hero is None:
+            hp = hero_data['health']
+            items = hero_data['items']
+            nickname = hero_data['nick']
+            position = hero_data['position']['py/tuple']
+            self.__main_hero = MainHero(self, self.__game, position, nickname, hp, items)
+            self.__game.pass_hero(self.__main_hero)
+            self.__eq_slot_sprite = self.__main_hero.get_equipment().get_background()
+            self.__marked_slot_sprite = self.__main_hero.get_equipment().get_marked_background()
 
     def loop(self):
-        self.__handle_events()
-        self.__transform()
-        self.__draw()
+        self.__game.create_udp_connection_thread()
+        if self.__wait_for_data:
+            self.__hero_data = self.__check_server_response()
+            if self.__hero_data is not None:
+                self.__create_hero(self.__hero_data['data'][0])
+        if self.__main_hero is not None:
+            self.__handle_events()
+            self.__transform()
+            self.__draw()
 
     def __handle_events(self):
         for event in self.__game.get_events():
@@ -110,3 +132,17 @@ class GameRunner:
 
     def get_objects(self):
         return self.__objects
+
+    def __check_server_response(self):
+        server_responses = self.__game.get_udp_server_responses()
+        for response in server_responses:
+            if response['type'] != request_types.UDP_LOGIN:
+                continue
+            if response['auth_key'] is not None:
+                print("Hero data acquired")
+                self.__waiting_for_data = False
+                return response
+            else:
+                print("Character creation failure")
+                self.__waiting_for_data = False
+                return None

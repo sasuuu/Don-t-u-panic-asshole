@@ -37,3 +37,4 @@ class Map:
     def change_bias_y(self, value):
         self.__bias_y = (self.__bias_y + value) % self.__grass_size[Y_INDEX]
 
+

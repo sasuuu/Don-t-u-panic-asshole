@@ -5,7 +5,7 @@ import json
 import pickle
 from threading import Thread
 
-from lib.request_entities import request_fabric as request_fabric
+from lib.request_entities import request_factory as request_factory
 from lib import errors_provider as error
 from lib import request_types as request
 
@@ -23,7 +23,7 @@ class Server(object):
         self.__connected_clients = []
         self.__config_file = 'config/server_config.json'
         self.__read_config()
-        self.__requests_dictionary = request_fabric.get_request_dictionary()
+        self.__requests_dictionary = request_factory.get_request_dictionary()
         self.__bind_socket()
         self.__listen_for_connections()
 
@@ -116,7 +116,3 @@ class Client(Thread):
     @staticmethod
     def __deserialize_object(sending_object):
         return json.loads(pickle.loads(sending_object))
-
-
-if __name__ == '__main__':
-    __server = Server()
