@@ -28,7 +28,8 @@ class RequestHandler:
         auth_key = self.__get_key(deserialized_data)
         package_to_send = self.__dictionary[request_type].__call__(deserialized_data, address)
         client = self.__server.get_client_by_key(auth_key)
-        client.update_last_received_time(time.time())
+        if client is not None:
+            client.update_last_received_time(time.time())
         return package_to_send
 
     def __handle_login(self, data, address):
