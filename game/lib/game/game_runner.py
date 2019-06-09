@@ -140,18 +140,23 @@ class GameRunner:
                 self.__objects = []
                 self.recreate_objects(response)
             elif response['type'] == request_types.UDP_UPDATE_POSITION:
-                print('elo')
-                pass
+                object_data = response['data']
+                for world_object in self.__objects:
+                    if world_object.get_id() == object_data['idx']:
+                        position = object_data['position']['py/tuple']
+                        world_object.set_x(position[0])
+                        world_object.set_y(position[1])
+                self.__objects.sort(key=lambda y_coord: y_coord.get_y())
 
     def recreate_objects(self, response):
         object_list = response['data']
         for world_object in object_list:
-            if world_object['py/object'] == 'lib.model.character.Character':
-                if world_object['nick'] != self.__main_hero.get_nick():
-                    hp = world_object['health']
-                    nick = world_object['nick']
-                    items = world_object['items']
-                    object_id = world_object['idx']
-                    position = world_object['position']['py/tuple']
-                    self.__objects.append(Hero(position[0], position[1], hp, nick, items, object_id))
+            if world_object['py/object'] == 'lib.model.character.Character' and \
+                    world_object['nick'] != self.__main_hero.get_nick():
+                hp = world_object['health']
+                nick = world_object['nick']
+                items = world_object['items']
+                object_id = world_object['idx']
+                position = world_object['position']['py/tuple']
+                self.__objects.append(Hero(position[0], position[1], hp, nick, items, object_id))
         self.__objects.sort(key=lambda y_coord: y_coord.get_y())
