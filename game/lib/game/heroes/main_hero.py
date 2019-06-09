@@ -6,7 +6,7 @@ from math import fabs
 from lib.game.equipment_and_crafting.equipment import Equipment
 from lib.connections.request import request_types
 import time
-
+import random
 main_hero_config = None
 main_hero_config_dir = "lib/config/heroes/main_hero_config.json"
 file_exists = os.path.isfile(main_hero_config_dir)
@@ -70,7 +70,7 @@ class MainHero(Hero):
         self.__objects = game_runner.get_objects()
         self.__delta_time = 0
         self.__start = time.time()
-        self.__end = 0
+        self.__key = random.randint(0, 100)
         self.__flag = False
         self.__col_flag = False
         self.__center_x = CENTER_X  # hero isn't exactly at center screen
@@ -128,9 +128,13 @@ class MainHero(Hero):
                     self.__position_y = world_object.get_y() + world_object.get_height_collision() \
                                         + world_object.get_mv_y() - self.__center_y
 
-        # if time.time()-self.__start > 0.1:
-        #     data = [self.__position_x, self.__position_y]
-        #     self.__udp_connector.send_packet(request_types.UDP_UPDATE_POSITION, data, 8)
+        self.__send_position()
+
+    def __send_position(self):
+        if time.time() - self.__start > 0.2:
+            self.__start = time.time()
+            data = [self.__position_x, self.__position_y]
+            self.__udp_connector.send_packet(request_types.UDP_UPDATE_POSITION, data, self.__key)
 
     def get_sprite(self):
         actual_time = pygame.time.get_ticks()

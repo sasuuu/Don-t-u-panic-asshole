@@ -24,6 +24,7 @@ import random
 QUEUE_SIZE = 20
 RECONNECT_TRY_DELAY = 10
 GET_RESPONSE_TIMEOUT = 2
+GET_UDP_RESPONSE_TIMEOUT = 1
 SECOND_IN_MILISECONDS = 1000.0
 
 
@@ -65,7 +66,7 @@ class UdpConnectionThread(threading.Thread):
         key = random.randint(0, 100)
         conn.send_packet(request_types.UDP_LOGIN, [self.__game.get_logged_user()], key)
         while not self.__game.udp_thread_status():
-            response = conn.get_response()
+            response = conn.get_response(timeout=GET_UDP_RESPONSE_TIMEOUT)
             if response is not False:
                 self.__game.udp_queue_put(response)
                 last_received = time.time()
@@ -74,27 +75,6 @@ class UdpConnectionThread(threading.Thread):
                 self.__game.stop_udp()
         print('udp thread terminated')
         self.__game.remove_udp_thread()
-
-
-class UdpSenderThread(threading.Thread):
-    def __init__(self, game, main_hero):
-        threading.Thread.__init__(self)
-        self.__game = game
-        self.__hero = main_hero
-
-    def run(self):
-        print('sender created')
-        conn = self.__game.get_udp_connector()
-        last_send = time.time()
-        key = random.randint(0, 100)
-        while not self.__game.udp_thread_status():
-            if time.time() - last_send > 1:
-                x = self.__hero.get_x()
-                y = self.__hero.get_y()
-                data = [x, y]
-                conn.send_packet(request_types.UDP_UPDATE_POSITION, data, key)
-        print('sender thread terminated')
-        self.__game.remove_udp_sender()
 
 
 class Game:
@@ -114,23 +94,14 @@ class Game:
         self.__udp_server_responses = []
         self.__tcp_thread = TcpConnectionThread(self)
         self.__udp_thread = None
-        self.__udp_send_thread = None
         self.__tcp_thread_stop = False
         self.__udp_thread_stop = False
         self.__logged_user = None
         self.__tcp_thread.start()
-        self.__udp_connector_lock = threading.Lock()
 
     def remove_udp_thread(self):
         self.__udp_thread = None
         self.__udp_thread_stop = False
-
-    def remove_udp_sender(self):
-        self.__udp_send_thread = None
-
-    def pass_hero(self, hero):
-        self.__udp_send_thread = UdpSenderThread(self, hero)
-        self.__udp_send_thread.start()
 
     def tcp_thread_status(self):
         return self.__tcp_thread_stop

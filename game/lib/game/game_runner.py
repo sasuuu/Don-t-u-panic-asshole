@@ -4,7 +4,7 @@ from lib.game.heroes.hero import Hero
 from lib.game.map import Map
 from lib.game.object_generator import ObjectGenerator
 from lib.connections.request import request_types
-
+import time
 
 IDLE_SPEED = 0
 
@@ -42,7 +42,6 @@ class GameRunner:
             nickname = hero_data['nick']
             position = hero_data['position']['py/tuple']
             self.__main_hero = MainHero(self, self.__game, position, nickname, hp, items)
-            self.__game.pass_hero(self.__main_hero)
             self.__eq_slot_sprite = self.__main_hero.get_equipment().get_background()
             self.__marked_slot_sprite = self.__main_hero.get_equipment().get_marked_background()
 
@@ -51,15 +50,8 @@ class GameRunner:
         if self.__wait_for_data:
             self.__hero_data = self.__check_server_response()
             if self.__hero_data is not None and self.__hero_data[1] == request_types.UDP_LOGIN:
+                time.sleep(0.2)
                 self.__create_hero(self.__hero_data[0]['data'][0])
-            elif self.__hero_data is not None and self.__hero_data[1] == 4:
-                if self.__enemy is None:
-                    self.__hero_data = self.__hero_data[0]['data'][0]
-                    self.__enemy = Hero(self.__hero_data['position']['py/tuple'])
-                    self.__objects.append(self.__enemy)
-                else:
-                    self.__hero_data = self.__hero_data[0]['data'][0]
-                    self.__enemy.set_position(self.__hero_data['position']['py/tuple'])
         if self.__main_hero is not None:
             self.__handle_events()
             self.__transform()
@@ -149,7 +141,7 @@ class GameRunner:
             if response['type'] == request_types.UDP_LOGIN:
                 print('hero data got')
                 return [response, request_types.UDP_LOGIN]
-            if response['type'] == 4:
+            if response['type'] == '4':
                 print('enemy data got')
                 return [response, 4]
             else:

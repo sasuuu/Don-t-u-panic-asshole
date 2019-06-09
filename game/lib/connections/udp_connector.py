@@ -46,7 +46,6 @@ class UdpConnector:
             self.__socket.settimeout(None)
         except Exception as e:
             print(f'Error receiving data from server {e}')
-        print('elo')
         return False
 
     def send_packet(self, request_type, data: [], auth_key):
