@@ -138,17 +138,20 @@ class GameRunner:
                     self.__create_hero(response['data'][0])
             elif response['type'] == request_types.UDP_SERVER_UPDATE:
                 self.__objects = []
-                object_list = response['data']
-                for world_object in object_list:
-                    if world_object['py/object'] == 'lib.model.character.Character':
-                        if world_object['nick'] != self.__main_hero.get_nick():
-                            hp = world_object['health']
-                            nick = world_object['nick']
-                            items = world_object['items']
-                            object_id = world_object['idx']
-                            position = world_object['position']['py/tuple']
-                            self.__objects.append(Hero(position[0], position[1], hp, nick, items, idx))
-                self.__objects.sort(key=lambda y_coord: y_coord.get_y())
+                self.recreate_objects(response)
             elif response['type'] == request_types.UDP_UPDATE_POSITION:
                 print('elo')
                 pass
+
+    def recreate_objects(self, response):
+        object_list = response['data']
+        for world_object in object_list:
+            if world_object['py/object'] == 'lib.model.character.Character':
+                if world_object['nick'] != self.__main_hero.get_nick():
+                    hp = world_object['health']
+                    nick = world_object['nick']
+                    items = world_object['items']
+                    object_id = world_object['idx']
+                    position = world_object['position']['py/tuple']
+                    self.__objects.append(Hero(position[0], position[1], hp, nick, items, object_id))
+        self.__objects.sort(key=lambda y_coord: y_coord.get_y())
