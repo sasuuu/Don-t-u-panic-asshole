@@ -62,7 +62,8 @@ class GameRunner:
                         world_object.update_life(weapon.get_damage())
                         if world_object.get_life() <= 0:
                             print("object destroyed")
-                            self.__objects.pop(self.__objects.index(world_object))
+                            if self.__objects.count(world_object) > 0:
+                                self.__objects.pop(self.__objects.index(world_object))
                     self.__weapons.pop(self.__weapons.index(weapon))
 
     def __handle_events(self):
