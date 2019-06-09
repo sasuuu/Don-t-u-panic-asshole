@@ -1,3 +1,6 @@
+import json
+import os
+
 import pygame
 from lib import gamestates
 from lib.game.heroes.main_hero import MainHero
@@ -8,8 +11,17 @@ from lib.game.heroes.hero_movement import HeroMovement
 from lib.game.weapons.distance import Distance
 from lib.game.weapons.melee import Melee
 
+item_config = None
+file_exists = os.path.isfile("lib/config/items/item_config.json")
+if file_exists:
+    with open("lib/config/items/item_config.json") as json_file:
+        item_config = json.load(json_file)
+
+DISTANCE = item_config['distance']
+MELEE = item_config['melee']
 IDLE_SPEED = 0
 CROSS_SPEED = 0.7071
+LEFT_BUTTON = 0
 
 
 class GameRunner:
@@ -55,16 +67,13 @@ class GameRunner:
     def __check_weapon_collision(self, weapon):
         for world_object in self.__objects:
             if world_object.check_collision_weapon(weapon.get_x(), weapon.get_y(),
-                                                   weapon.get_col_width(), weapon.get_col_height()):
-                if self.__weapons.count(weapon) > 0:
-                    if world_object.get_life() is not None:
-                        print("hit dealing ", weapon.get_damage(), " damage")
-                        world_object.update_life(weapon.get_damage())
-                        if world_object.get_life() <= 0:
-                            print("object destroyed")
-                            if self.__objects.count(world_object) > 0:
-                                self.__objects.pop(self.__objects.index(world_object))
-                    self.__weapons.pop(self.__weapons.index(weapon))
+                                                   weapon.get_col_width(),
+                                                   weapon.get_col_height()) and self.__weapons.count(weapon) > 0:
+                if world_object.get_life() is not None:
+                    world_object.update_life(weapon.get_damage())
+                    if world_object.get_life() <= 0 and self.__objects.count(world_object) > 0:
+                        self.__objects.pop(self.__objects.index(world_object))
+                self.__weapons.pop(self.__weapons.index(weapon))
 
     def __handle_events(self):
         for event in self.__game.get_events():
@@ -73,7 +82,7 @@ class GameRunner:
             self.__handle_number_key_event(event)
 
     def __handle_keydown_events(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0]:
+        if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[LEFT_BUTTON]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             self.selected_weapon(mouse_x, mouse_y)
 
@@ -188,22 +197,20 @@ class GameRunner:
     def selected_weapon(self, horizontal, vertical):
         marked_index = self.__main_hero.get_equipment().get_marked_index()
         marked_item = self.__main_hero.get_equipment().get_item_by_index(marked_index)
-        distance = 1
-        melee = 0
         if marked_item is not None:
             action = marked_item.get_action()
             damage = marked_item.get_damage()
         else:
-            action = melee
+            action = MELEE
             damage = self.__main_hero.get_damage()
 
-        if action == melee:
+        if action == MELEE:
             self.__weapons.append(
                 Melee(self.__main_hero.get_x() + self.__screen_size[0] / 2 + self.__main_hero.get_center_x(),
                       self.__main_hero.get_y() + self.__screen_size[1] / 2 + self.__main_hero.get_center_x(),
                       horizontal, vertical, self.__main_hero.get_center_x(), self.__main_hero.get_center_y(),
                       self.__screen_size, damage))
-        elif action == distance:
+        elif action == DISTANCE:
             self.__weapons.append(
                 Distance(self.__main_hero.get_x() + self.__screen_size[0] / 2 + self.__main_hero.get_center_x(),
                          self.__main_hero.get_y() + self.__screen_size[1] / 2 + self.__main_hero.get_center_x(),

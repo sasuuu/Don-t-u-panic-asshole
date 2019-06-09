@@ -10,9 +10,9 @@ tree_sprite = [pygame.image.load('config/assets/objects/tree1.png'),
 
 
 object_config = None
-file_exists = os.path.isfile("config/object_config.json")
+file_exists = os.path.isfile("lib/config/objects/object_config.json")
 if file_exists:
-    with open("config/object_config.json") as json_file:
+    with open("lib/config/objects/object_config.json") as json_file:
         object_config = json.load(json_file)
 
 

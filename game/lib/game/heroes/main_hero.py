@@ -81,7 +81,7 @@ class MainHero(Hero):
         self.__equipment.pick_up_item(Hook())
         self.__screen = self.__game.get_screen()
         self.__screen_size = self.__screen.get_size()
-        self.__damage = 5
+        self.__damage = main_hero_config['fist_damage']
 
         self.__horizontal_speed = IDLE_SPEED
         self.__vertical_speed = IDLE_SPEED

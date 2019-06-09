@@ -18,5 +18,5 @@ class Stick(Item):
         self._sprite = pygame.transform.scale(pygame.image.load('config/assets/items/stick.png'),
                                               (item_config['item_sprite_size'], item_config['item_sprite_size']))
         self._action = item_config['melee']
-        self._damage = 15
+        self._damage = item_config['stick_damage']
 

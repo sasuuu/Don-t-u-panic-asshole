@@ -11,7 +11,7 @@ class Melee(Weapon):
         self._vel_vertical = math.sin(self.__angle) * 10
         self._pos_x = x + 1 * self._vel_horizontal
         self._pos_y = y + 1 * self._vel_vertical
-        self._sprite = pygame.transform.scale(pygame.image.load('config/assets/objects/rock1.png'), (50, 50))
+        self._sprite = pygame.transform.scale(pygame.image.load('config/assets/attack/cross.png'), (20, 20))
         self._time_of_life = 2
         self._collision_width = 50
         self._collision_height = 50
