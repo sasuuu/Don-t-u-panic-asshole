@@ -2,7 +2,8 @@ from enum import Enum
 
 
 class Controller(Enum):
-    A = 97
     W = 119
-    D = 100
+    A = 97
     S = 115
+    D = 100
+
