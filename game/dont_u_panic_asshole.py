@@ -122,12 +122,19 @@ class Game:
         self.__logged_user = None
         self.__tcp_thread.start()
         self.__key = None
+        self.__last_state = None
 
     def set_key(self, key):
         self.__key = key
 
     def get_key(self):
         return self.__key
+
+    def get_last_state(self):
+        return self.__last_state
+
+    def set_last_state(self, state):
+        self.__last_state = state
 
     def pass_hero(self, hero):
         self.__udp_send_thread = UdpSenderThread(self, hero)

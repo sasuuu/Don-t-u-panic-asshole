@@ -4,9 +4,13 @@ from lib.game.map import Map
 from lib.game.object_generator import ObjectGenerator
 from lib.connections.request import request_types
 from lib.game.heroes.hero import Hero
+from lib.config.controllers.controller import Controller
+from lib.game.heroes.hero_movement import HeroMovement
+from lib import gamestates
 
 
 IDLE_SPEED = 0
+CROSS_SPEED = 0.7071
 
 
 class GameRunner:
@@ -32,6 +36,7 @@ class GameRunner:
         self.__x_index = 0
         self.__y_index = 1
         self.__hero_data = None
+        self.__movement_events = []
 
     def __create_hero(self, hero_data):
         if self.__main_hero is None:
@@ -59,26 +64,49 @@ class GameRunner:
             self.__handle_number_key_event(event)
 
     def __handle_keydown_events(self, event):
+        if event.type == pygame.KEYDOWN and self.__check_event_type(event) == 'movement':
+            self.__movement_events.append(event.key)
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            self.__game.set_state(gamestates.GAME_MENU)
         if event.type == pygame.KEYDOWN and event.key == pygame.K_w:
-            self.__main_hero_vertical_speed = -self.__hero_move_converter(self.__main_hero)
-            self.__main_hero.set_movement_up()
+            HeroMovement.movement_up(self.__main_hero, self.__game)
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_s:
-            self.__main_hero_vertical_speed = self.__hero_move_converter(self.__main_hero)
-            self.__main_hero.set_movement_down()
+            HeroMovement.movement_down(self.__main_hero, self.__game)
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_a:
-            self.__main_hero_horizontal_speed = -self.__hero_move_converter(self.__main_hero)
-            self.__main_hero.set_movement_left()
+            HeroMovement.movement_left(self.__main_hero, self.__game)
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_d:
-            self.__main_hero_horizontal_speed = self.__hero_move_converter(self.__main_hero)
-            self.__main_hero.set_movement_right()
+            HeroMovement.movement_right(self.__main_hero, self.__game)
+
+        if self.__movement_events.count(Controller.D.value) > 0 \
+                and self.__movement_events.count(Controller.W.value) > 0:
+            HeroMovement.movement_up_right(self.__main_hero, self.__game)
+        elif self.__movement_events.count(Controller.S.value) > 0 \
+                and self.__movement_events.count(Controller.D.value) > 0:
+            HeroMovement.movement_down_right(self.__main_hero, self.__game)
+        elif self.__movement_events.count(Controller.A.value) > 0 \
+                and self.__movement_events.count(Controller.S.value) > 0:
+            HeroMovement.movement_down_left(self.__main_hero, self.__game)
+        elif self.__movement_events.count(Controller.A.value) > 0 \
+                and self.__movement_events.count(Controller.W.value) > 0:
+            HeroMovement.movement_up_left(self.__main_hero, self.__game)
 
     def __handle_keyup_events(self, event):
+        if event.type == pygame.KEYUP and self.__check_event_type(event) == 'movement':
+            self.__movement_events.remove(event.key)
         if event.type == pygame.KEYUP and (event.key == pygame.K_w or event.key == pygame.K_s):
-            self.__main_hero_vertical_speed = IDLE_SPEED
+            self.__main_hero.set_vertical_speed(IDLE_SPEED)
             self.__main_hero.reset_direction(event.key)
         elif event.type == pygame.KEYUP and (event.key == pygame.K_a or event.key == pygame.K_d):
-            self.__main_hero_horizontal_speed = IDLE_SPEED
+            self.__main_hero.set_horizontal_speed(IDLE_SPEED)
             self.__main_hero.reset_direction(event.key)
+        if self.__movement_events.count(Controller.W.value) > 0:
+            self.__main_hero.set_vertical_speed(-HeroMovement.hero_move_converter(self.__main_hero, self.__game))
+        elif self.__movement_events.count(Controller.S.value) > 0:
+            self.__main_hero.set_vertical_speed(HeroMovement.hero_move_converter(self.__main_hero, self.__game))
+        elif self.__movement_events.count(Controller.A.value) > 0:
+            self.__main_hero.set_horizontal_speed(-HeroMovement.hero_move_converter(self.__main_hero, self.__game))
+        elif self.__movement_events.count(Controller.D.value) > 0:
+            self.__main_hero.set_horizontal_speed(HeroMovement.hero_move_converter(self.__main_hero, self.__game))
 
     def __hero_move_converter(self, hero):
         return hero.get_move_speed() * self.__game.get_delta_time()
@@ -92,9 +120,9 @@ class GameRunner:
 
     def __transform(self):
         if not self.__main_hero.get_col_flag():
-            self.__map.change_bias_x(self.__main_hero_horizontal_speed)
-            self.__map.change_bias_y(self.__main_hero_vertical_speed)
-        self.__main_hero.update_position(self.__main_hero_horizontal_speed, self.__main_hero_vertical_speed)
+            self.__map.change_bias_x(self.__main_hero.get_horizontal_speed())
+            self.__map.change_bias_y(self.__main_hero.get_vertical_speed())
+        self.__main_hero.update_position(self.__main_hero.get_horizontal_speed(), self.__main_hero.get_vertical_speed())
 
     def __draw(self):
         self.__map.fill_screen_with_grass()
@@ -137,18 +165,21 @@ class GameRunner:
                 if self.__main_hero is None:
                     self.__create_hero(response['data'][0])
             elif response['type'] == request_types.UDP_SERVER_UPDATE:
-                self.__objects = []
                 self.recreate_objects(response)
             elif response['type'] == request_types.UDP_UPDATE_POSITION:
-                object_data = response['data']
-                for world_object in self.__objects:
-                    if world_object.get_id() == object_data['idx']:
-                        position = object_data['position']['py/tuple']
-                        world_object.set_x(position[0])
-                        world_object.set_y(position[1])
+                self.update_positions(response)
                 self.__objects.sort(key=lambda y_coord: y_coord.get_y())
 
+    def update_positions(self, response):
+        object_data = response['data']
+        for world_object in self.__objects:
+            if world_object.get_id() == object_data['idx']:
+                position = object_data['position']['py/tuple']
+                world_object.set_x(position[0])
+                world_object.set_y(position[1])
+
     def recreate_objects(self, response):
+        self.__objects = []
         object_list = response['data']
         for world_object in object_list:
             if world_object['py/object'] == 'lib.model.character.Character' and \
@@ -160,3 +191,7 @@ class GameRunner:
                 position = world_object['position']['py/tuple']
                 self.__objects.append(Hero(position[0], position[1], hp, nick, items, object_id))
         self.__objects.sort(key=lambda y_coord: y_coord.get_y())
+
+    def __check_event_type(self, event):
+        if event.key == pygame.K_w or event.key == pygame.K_a or event.key == pygame.K_s or event.key == pygame.K_d:
+            return 'movement'
