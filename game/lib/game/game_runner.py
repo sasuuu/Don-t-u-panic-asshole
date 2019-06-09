@@ -156,6 +156,9 @@ class GameRunner:
                                        self.__x_index] / 2,
                                    world_object.get_y() - self.__main_hero.get_y()
                                    + self.__screen_size[self.__y_index] / 2))
+        for weapon in self.__weapons:
+            self.__screen.blit(weapon.get_sprite(), (weapon.get_x() - self.__main_hero.get_x(),
+                                                     weapon.get_y() - self.__main_hero.get_y()))
         marked_index = self.__main_hero.get_equipment().get_marked_index()
         for y in range(0, 5):
             if y == marked_index:
@@ -177,9 +180,7 @@ class GameRunner:
                                    ((self.__screen_size[self.__x_index] / 2) + y * self.__eq_slot_width
                                     - self.__shift_from_middle,
                                     self.__screen_size[self.__y_index] - self.__lower_margin))
-        for weapon in self.__weapons:
-            self.__screen.blit(weapon.get_sprite(), (weapon.get_x() - self.__main_hero.get_x(),
-                                                     weapon.get_y() - self.__main_hero.get_y()))
+
 
     def get_objects(self):
         return self.__objects

@@ -183,7 +183,7 @@ if __name__ == "__main__":
         if main.get_state() == gamestates.QUIT:
             main.quit()
         elif main.get_state() == gamestates.INTRO:
-            game_obj.loop()
+            intro_obj.loop()
         elif main.get_state() == gamestates.LOGIN:
             login_obj.loop()
         elif main.get_state() == gamestates.MAIN_MENU:
