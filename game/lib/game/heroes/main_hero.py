@@ -22,6 +22,8 @@ SPRITE_AMOUNT_VERTICAL = 3
 SPRITE_AMOUNT_HORIZONTAL = 5
 SPRITE_CHANGE_DELTA_TIME = 100
 
+IDLE_SPEED = 0
+
 right_sprite = [pygame.image.load('config/assets/main_hero_run_right_0.png'),
                 pygame.image.load('config/assets/main_hero_run_right_1.png'),
                 pygame.image.load('config/assets/main_hero_run_right_2.png'),
@@ -80,6 +82,9 @@ class MainHero(Hero):
         self.__screen = self.__game.get_screen()
         self.__screen_size = self.__screen.get_size()
 
+        self.__horizontal_speed = IDLE_SPEED
+        self.__vertical_speed = IDLE_SPEED
+
     def get_character(self):
         return self.__character
 
@@ -123,10 +128,7 @@ class MainHero(Hero):
                                         + world_object.get_mv_y()  - self.__center_y
 
     def get_sprite(self):
-        actual_time = pygame.time.get_ticks()
-        if fabs(actual_time - self.__last_update_time) >= SPRITE_CHANGE_DELTA_TIME:
-            self.__move_count += 1
-            self.__last_update_time = actual_time
+        self.update_sprite()
 
         if self.__movement_left:
             sprite = left_sprite[self.__move_count % SPRITE_AMOUNT_HORIZONTAL]
@@ -137,9 +139,15 @@ class MainHero(Hero):
         elif self.__movement_down:
             sprite = down_sprite[self.__move_count % SPRITE_AMOUNT_VERTICAL]
         else:
-            sprite = self.set_standing_sprite()
+            sprite = self.get_standing_sprite()
 
         return sprite
+
+    def update_sprite(self):
+        actual_time = pygame.time.get_ticks()
+        if fabs(actual_time - self.__last_update_time) >= SPRITE_CHANGE_DELTA_TIME:
+            self.__move_count += 1
+            self.__last_update_time = actual_time
 
     def reset_direction(self, direction):
         if direction == pygame.K_d:
@@ -157,10 +165,6 @@ class MainHero(Hero):
         self.__move_count = 0
 
     def set_movement_right(self):
-        self.__movement_left = False
-        self.__movement_right = True
-
-    def set_movement_left(self):
         self.__movement_right = True
         self.__movement_left = False
 
@@ -176,7 +180,7 @@ class MainHero(Hero):
         self.__movement_down = True
         self.__movement_up = False
 
-    def set_standing_sprite(self):
+    def get_standing_sprite(self):
         if self.__standing == "left":
             return left_sprite[0]
         if self.__standing == "right":
@@ -185,6 +189,12 @@ class MainHero(Hero):
             return up_sprite[0]
         if self.__standing == "down":
             return down_sprite[0]
+
+    def set_horizontal_speed(self, speed):
+        self.__horizontal_speed = speed
+
+    def set_vertical_speed(self, speed):
+        self.__vertical_speed = speed
 
     def get_x(self):
         return self.__position_x
@@ -209,3 +219,9 @@ class MainHero(Hero):
 
     def get_equipment(self):
         return self.__equipment
+
+    def get_horizontal_speed(self):
+        return self.__horizontal_speed
+
+    def get_vertical_speed(self):
+        return self.__vertical_speed
