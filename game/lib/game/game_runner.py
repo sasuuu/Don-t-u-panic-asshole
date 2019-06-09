@@ -1,10 +1,10 @@
 import pygame
 from lib.game.heroes.main_hero import MainHero
-from lib.game.heroes.hero import Hero
 from lib.game.map import Map
 from lib.game.object_generator import ObjectGenerator
 from lib.connections.request import request_types
-import time
+from lib.game.heroes.hero import Hero
+
 
 IDLE_SPEED = 0
 
@@ -19,7 +19,7 @@ class GameRunner:
         self.__map = Map(self.__game)
         self.__udp_connector = self.__game.get_udp_connector()
         self.__objects = ObjectGenerator.generate_objects()
-        self.__objects.sort(key=lambda y: y.get_y())
+        self.__objects.sort(key=lambda y_coord: y_coord.get_y())
         self.__main_hero = None
         self.__main_hero_horizontal_speed = IDLE_SPEED
         self.__main_hero_vertical_speed = IDLE_SPEED
@@ -31,9 +31,7 @@ class GameRunner:
         self.__shift_from_middle = 160
         self.__x_index = 0
         self.__y_index = 1
-        self.__wait_for_data = True
         self.__hero_data = None
-        self.__enemy = None
 
     def __create_hero(self, hero_data):
         if self.__main_hero is None:
@@ -42,16 +40,13 @@ class GameRunner:
             nickname = hero_data['nick']
             position = hero_data['position']['py/tuple']
             self.__main_hero = MainHero(self, self.__game, position, nickname, hp, items)
+            self.__game.pass_hero(self.__main_hero)
             self.__eq_slot_sprite = self.__main_hero.get_equipment().get_background()
             self.__marked_slot_sprite = self.__main_hero.get_equipment().get_marked_background()
 
     def loop(self):
         self.__game.create_udp_connection_thread()
-        if self.__wait_for_data:
-            self.__hero_data = self.__check_server_response()
-            if self.__hero_data is not None and self.__hero_data[1] == request_types.UDP_LOGIN:
-                time.sleep(0.2)
-                self.__create_hero(self.__hero_data[0]['data'][0])
+        self.__check_server_response()
         if self.__main_hero is not None:
             self.__handle_events()
             self.__transform()
@@ -139,11 +134,21 @@ class GameRunner:
         server_responses = self.__game.get_udp_server_responses()
         for response in server_responses:
             if response['type'] == request_types.UDP_LOGIN:
-                print('hero data got')
-                return [response, request_types.UDP_LOGIN]
-            if response['type'] == '4':
-                print('enemy data got')
-                return [response, 4]
-            else:
-                print("Character creation failure")
-                return None
+                if self.__main_hero is None:
+                    self.__create_hero(response['data'][0])
+            elif response['type'] == request_types.UDP_SERVER_UPDATE:
+                self.__objects = []
+                object_list = response['data']
+                for world_object in object_list:
+                    if world_object['py/object'] == 'lib.model.character.Character':
+                        if world_object['nick'] != self.__main_hero.get_nick():
+                            hp = world_object['health']
+                            nick = world_object['nick']
+                            items = world_object['items']
+                            object_id = world_object['idx']
+                            position = world_object['position']['py/tuple']
+                            self.__objects.append(Hero(position[0], position[1], hp, nick, items, idx))
+                self.__objects.sort(key=lambda y_coord: y_coord.get_y())
+            elif response['type'] == request_types.UDP_UPDATE_POSITION:
+                print('elo')
+                pass

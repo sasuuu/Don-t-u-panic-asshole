@@ -13,6 +13,7 @@ class WorldObject:
     _move_left_corner_y = None
     _width_collision = None
     _height_collision = None
+    _object_id = None
 
     def __init__(self, x_coordinate, y_coordinate, width, height):
         self._x_coordinate = x_coordinate

@@ -1,12 +1,9 @@
 import pygame
 import os
 import json
-from lib.game.heroes.hero import Hero
 from math import fabs
 from lib.game.equipment_and_crafting.equipment import Equipment
-from lib.connections.request import request_types
-import time
-import random
+
 main_hero_config = None
 main_hero_config_dir = "lib/config/heroes/main_hero_config.json"
 file_exists = os.path.isfile(main_hero_config_dir)
@@ -47,7 +44,7 @@ up_sprite = [pygame.image.load('config/assets/main_hero_run_up_0.png'),
              pygame.image.load('config/assets/main_hero_run_up_3.png')]
 
 
-class MainHero(Hero):
+class MainHero:
     __movement_left = False
     __movement_right = False
     __movement_up = False
@@ -69,8 +66,6 @@ class MainHero(Hero):
         self.__udp_connector = self.__game.get_udp_connector()
         self.__objects = game_runner.get_objects()
         self.__delta_time = 0
-        self.__start = time.time()
-        self.__key = random.randint(0, 100)
         self.__flag = False
         self.__col_flag = False
         self.__center_x = CENTER_X  # hero isn't exactly at center screen
@@ -86,6 +81,9 @@ class MainHero(Hero):
 
     def get_character(self):
         return self.__character
+
+    def get_nick(self):
+        return self.__nick
 
     def get_move_speed(self):
         return self.__move_speed
@@ -127,14 +125,6 @@ class MainHero(Hero):
                     #  /\ Hero Up
                     self.__position_y = world_object.get_y() + world_object.get_height_collision() \
                                         + world_object.get_mv_y() - self.__center_y
-
-        self.__send_position()
-
-    def __send_position(self):
-        if time.time() - self.__start > 0.2:
-            self.__start = time.time()
-            data = [self.__position_x, self.__position_y]
-            self.__udp_connector.send_packet(request_types.UDP_UPDATE_POSITION, data, self.__key)
 
     def get_sprite(self):
         actual_time = pygame.time.get_ticks()

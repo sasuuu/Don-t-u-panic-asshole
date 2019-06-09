@@ -31,6 +31,8 @@ class UdpConnector:
         self.__socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     def get_response(self, timeout=None):
+        if self.__socket is None:
+            print('elo')
         try:
             if timeout is not None:
                 self.__socket.settimeout(timeout)
@@ -40,10 +42,11 @@ class UdpConnector:
                 return False
             else:
                 server_response = self.__deserialize_object(server_response)
-            print(f'Server responded with {server_response}')
+                print(f'Server responded with {server_response}')
             return server_response
         except socket.timeout:
             self.__socket.settimeout(None)
+            return False
         except Exception as e:
             print(f'Error receiving data from server {e}')
         return False
