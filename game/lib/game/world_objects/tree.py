@@ -23,7 +23,7 @@ class Tree(WorldObject):
         self._sprite_path = tree_sprite[self._rand_sprite]
         self._move_left_corner_x = 125
         self._move_left_corner_y = 125
-        self._life = 100
+        self._life = object_config['tree_hp']
 
         if self._rand_sprite == 0:
             self._move_left_corner_y = object_config['tree1_move_left_corner_y']
