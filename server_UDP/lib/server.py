@@ -177,7 +177,6 @@ class Server(Thread):
             sys.exit(error.WRONG_SOCKET)
 
     def __close_server(self):
-        self.__inform_clients_about_close()
         self.__stop_receiving_thread()
         self.__stop_sending_thread()
         self.__db.close_connection()

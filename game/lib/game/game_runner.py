@@ -43,7 +43,7 @@ class GameRunner:
             hp = hero_data['health']
             items = hero_data['items']
             nickname = hero_data['nick']
-            position = hero_data['position']['py/tuple']
+            position = hero_data['position']
             self.__main_hero = MainHero(self, self.__game, position, nickname, hp, items)
             self.__game.pass_hero(self.__main_hero)
             self.__eq_slot_sprite = self.__main_hero.get_equipment().get_background()
