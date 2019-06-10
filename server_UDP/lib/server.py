@@ -23,10 +23,16 @@ from lib.package_threads import ReceivePackagesThread, SendPackagesThread
 QUEUE_SIZE = 20
 CHUNK_HEIGHT = 2160
 CHUNK_WIDTH = 3840
-CHARACTER_START_HEALTH = 100
-CHARACTER_START_POSITION = (100, 100)
-POS_X = 0
-POS_Y = 1
+CHARACTER_START_HEALTH = None
+CHARACTER_START_POSITION = None
+POS_X_INDEX = 0
+POS_Y_INDEX = 1
+file_exists = os.path.isfile("config/server_config.json")
+if file_exists:
+    with open("config/server_config.json") as json_file:
+        server_config = json.load(json_file)
+        CHARACTER_START_HEALTH = server_config['character_start_health']
+        CHARACTER_START_POSITION = server_config['character_start_position']
 
 
 class Server(Thread):
@@ -257,8 +263,8 @@ class Server(Thread):
         character_chunk_position = self.__chunks_list[character_chunk_index].position
         for offset_x in (-CHUNK_WIDTH, 0, CHUNK_WIDTH):
             for offset_y in (-CHUNK_HEIGHT, 0, CHUNK_HEIGHT):
-                chunk_pos_x = character_chunk_position[POS_X] + offset_x
-                chunk_pos_y = character_chunk_position[POS_Y] + offset_y
+                chunk_pos_x = character_chunk_position[POS_X_INDEX] + offset_x
+                chunk_pos_y = character_chunk_position[POS_Y_INDEX] + offset_y
                 if 0 <= chunk_pos_x <= self.__map_width and 0 <= chunk_pos_y <= self.__map_height:
                     indexes.append(self.find_chunk_index_by_position((chunk_pos_x, chunk_pos_y)))
         return indexes
