@@ -3,6 +3,8 @@ import os
 import json
 from math import fabs
 from lib.game.equipment_and_crafting.equipment import Equipment
+from lib.game.items.hook import Hook
+from lib.game.items.stick import Stick
 
 main_hero_config = None
 main_hero_config_dir = "lib/config/heroes/main_hero_config.json"
@@ -76,10 +78,13 @@ class MainHero:
         self.__equipment = Equipment()
         self.__hit_points = hp
         self.__nick = nickname
+        self.__equipment.pick_up_item(Stick())
+        self.__equipment.pick_up_item(Hook())
         for item in items:
             self.__equipment.pick_up_item(item)
         self.__screen = self.__game.get_screen()
         self.__screen_size = self.__screen.get_size()
+        self.__damage = main_hero_config['fist_damage']
         self.__horizontal_speed = IDLE_SPEED
         self.__vertical_speed = IDLE_SPEED
 
@@ -188,6 +193,9 @@ class MainHero:
 
     def set_vertical_speed(self, speed):
         self.__vertical_speed = speed
+
+    def get_damage(self):
+        return self.__damage
 
     def get_standing_sprite(self):
         if self.__standing == "left":

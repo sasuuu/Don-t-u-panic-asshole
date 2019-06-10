@@ -10,9 +10,9 @@ tree_sprite = [pygame.image.load('config/assets/objects/tree1.png'),
 
 
 object_config = None
-file_exists = os.path.isfile("config/object_config.json")
+file_exists = os.path.isfile("lib/config/objects/object_config.json")
 if file_exists:
-    with open("config/object_config.json") as json_file:
+    with open("lib/config/objects/object_config.json") as json_file:
         object_config = json.load(json_file)
 
 
@@ -23,6 +23,7 @@ class Tree(WorldObject):
         self._sprite_path = tree_sprite[self._rand_sprite]
         self._move_left_corner_x = 125
         self._move_left_corner_y = 125
+        self._life = object_config['tree_hp']
 
         if self._rand_sprite == 0:
             self._move_left_corner_y = object_config['tree1_move_left_corner_y']
