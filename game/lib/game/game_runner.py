@@ -1,6 +1,3 @@
-import json
-import os
-
 import pygame
 from lib.game.heroes.main_hero import MainHero
 from lib.game.map import Map
@@ -10,20 +7,12 @@ from lib.game.heroes.hero import Hero
 from lib.config.controllers.controller import Controller
 from lib.game.heroes.hero_movement import HeroMovement
 from lib import gamestates
-from lib.game.weapons.distance import Distance
-from lib.game.weapons.melee import Melee
+from lib.game.world_objects.rock import Rock
+from lib.game.world_objects.tree import Tree
 
-item_config = None
-file_exists = os.path.isfile("lib/config/items/item_config.json")
-if file_exists:
-    with open("lib/config/items/item_config.json") as json_file:
-        item_config = json.load(json_file)
 
-DISTANCE = item_config['distance']
-MELEE = item_config['melee']
 IDLE_SPEED = 0
 CROSS_SPEED = 0.7071
-LEFT_BUTTON = 0
 
 
 class GameRunner:
@@ -50,7 +39,6 @@ class GameRunner:
         self.__y_index = 1
         self.__hero_data = None
         self.__movement_events = []
-        self.__weapons = []
 
     def __create_hero(self, hero_data):
         if self.__main_hero is None:
@@ -70,28 +58,6 @@ class GameRunner:
             self.__handle_events()
             self.__transform()
             self.__draw()
-            self.__weapon_refresh()
-
-    def __weapon_refresh(self):
-        for weapon in self.__weapons:
-            if weapon.get_time_of_life() != 0:
-                weapon.update_x()
-                weapon.update_y()
-                weapon.update_time_of_life()
-            else:
-                self.__weapons.pop(self.__weapons.index(weapon))
-            self.__check_weapon_collision(weapon)
-
-    def __check_weapon_collision(self, weapon):
-        for world_object in self.__objects:
-            if world_object.check_collision_weapon(weapon.get_x(), weapon.get_y(),
-                                                    weapon.get_col_width(),
-                                                    weapon.get_col_height()) and self.__weapons.count(weapon) > 0:
-                if world_object.get_life() is not None:
-                    world_object.update_life(weapon.get_damage())
-                    if world_object.get_life() <= 0 and self.__objects.count(world_object) > 0:
-                        self.__objects.pop(self.__objects.index(world_object))
-                self.__weapons.pop(self.__weapons.index(weapon))
 
     def __handle_events(self):
         for event in self.__game.get_events():
@@ -100,10 +66,6 @@ class GameRunner:
             self.__handle_number_key_event(event)
 
     def __handle_keydown_events(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[LEFT_BUTTON]:
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            self.selected_weapon(mouse_x, mouse_y)
-
         if event.type == pygame.KEYDOWN and self.__check_event_type(event) == 'movement':
             self.__movement_events.append(event.key)
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
@@ -173,9 +135,6 @@ class GameRunner:
                                world_object.get_x() - self.__main_hero.get_x() + self.__screen_size[self.__x_index] / 2,
                                world_object.get_y() - self.__main_hero.get_y()
                                + self.__screen_size[self.__y_index] / 2))
-        for weapon in self.__weapons:
-            self.__screen.blit(weapon.get_sprite(), (weapon.get_x() - self.__main_hero.get_x(),
-                                                     weapon.get_y() - self.__main_hero.get_y()))
         marked_index = self.__main_hero.get_equipment().get_marked_index()
         for y in range(0, 5):
             if y == marked_index:
@@ -207,8 +166,9 @@ class GameRunner:
             if response['type'] == request_types.UDP_LOGIN:
                 if self.__main_hero is None:
                     self.__create_hero(response['data'][0])
+                    self.__create_objects(response['data'][1:])
             elif response['type'] == request_types.UDP_SERVER_UPDATE:
-                self.recreate_objects(response)
+                self.__create_objects(response['data'])
             elif response['type'] == request_types.UDP_UPDATE_POSITION:
                 self.update_positions(response)
                 self.__objects.sort(key=lambda y_coord: y_coord.get_y())
@@ -221,47 +181,30 @@ class GameRunner:
                 world_object.set_x(position[0])
                 world_object.set_y(position[1])
 
-    def recreate_objects(self, response):
+    def __create_objects(self, object_list):
         self.__objects = []
-        object_list = response['data']
         for world_object in object_list:
-            if world_object['py/object'] == 'lib.model.character.Character' and \
-                    world_object['nick'] != self.__main_hero.get_nick():
-                hp = world_object['health']
-                nick = world_object['nick']
-                items = world_object['items']
-                object_id = world_object['idx']
-                position = world_object['position']['py/tuple']
-                self.__objects.append(Hero(position[0], position[1], hp, nick, items, object_id))
+            if 'object_type' in world_object:
+                if world_object['py/object'] == 'lib.model.character.Character' and \
+                        world_object['nick'] != self.__main_hero.get_nick():
+                    hp = world_object['health']
+                    nick = world_object['nick']
+                    items = world_object['items']
+                    object_id = world_object['idx']
+                    position = world_object['position']['py/tuple']
+                    self.__objects.append(Hero(position[0], position[1], hp, nick, items, object_id))
+                elif world_object['object_type'] == 2 or world_object['object_type'] == 4:
+                    position = world_object['position']['py/tuple']
+                    object_id = world_object['idx']
+                    sprite = world_object['sprite']
+                    self.__objects.append(Rock(sprite, object_id, position[0], position[1]))
+                elif world_object['object_type'] == 6:
+                    position = world_object['position']['py/tuple']
+                    object_id = world_object['idx']
+                    sprite = world_object['sprite']
+                    self.__objects.append(Tree(sprite, object_id, position[0], position[1]))
         self.__objects.sort(key=lambda y_coord: y_coord.get_y())
 
     def __check_event_type(self, event):
         if event.key == pygame.K_w or event.key == pygame.K_a or event.key == pygame.K_s or event.key == pygame.K_d:
             return 'movement'
-
-    def selected_weapon(self, horizontal, vertical):
-        marked_index = self.__main_hero.get_equipment().get_marked_index()
-        marked_item = self.__main_hero.get_equipment().get_item_by_index(marked_index)
-        if marked_item is not None:
-            action = marked_item.get_action()
-            damage = marked_item.get_damage()
-        else:
-            action = MELEE
-            damage = self.__main_hero.get_damage()
-
-        if action == MELEE:
-            self.__weapons.append(
-                Melee(self.__main_hero.get_x()
-                      + self.__screen_size[self.__x_index] / 2 + self.__main_hero.get_center_x(),
-                      self.__main_hero.get_y()
-                      + self.__screen_size[self.__y_index] / 2 + self.__main_hero.get_center_x(),
-                      horizontal, vertical, self.__main_hero.get_center_x(), self.__main_hero.get_center_y(),
-                      self.__screen_size, damage))
-        elif action == DISTANCE:
-            self.__weapons.append(
-                Distance(self.__main_hero.get_x()
-                         + self.__screen_size[self.__x_index] / 2 + self.__main_hero.get_center_x(),
-                         self.__main_hero.get_y()
-                         + self.__screen_size[self.__y_index] / 2 + self.__main_hero.get_center_x(),
-                         horizontal, vertical, self.__main_hero.get_center_x(), self.__main_hero.get_center_y(),
-                         self.__screen_size, damage))

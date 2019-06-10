@@ -25,7 +25,7 @@ QUEUE_SIZE = 20
 RECONNECT_TRY_DELAY = 10
 GET_RESPONSE_TIMEOUT = 2
 GET_UDP_RESPONSE_TIMEOUT = 0.1
-SECOND_IN_MILLISECONDS = 1000.0
+SECOND_IN_MILISECONDS = 1000.0
 
 
 class TcpConnectionThread(threading.Thread):
@@ -243,7 +243,7 @@ class Game:
         self.__screen.fill(colors.WHITE)
 
     def get_delta_time(self):
-        return self.__clock.get_time() / SECOND_IN_MILLISECONDS
+        return self.__clock.get_time() / SECOND_IN_MILISECONDS
 
     def quit(self):
         self.__tcp_thread_stop = True
