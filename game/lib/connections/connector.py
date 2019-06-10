@@ -56,12 +56,10 @@ class Connector:
             return False
         return True
 
-    def get_servers(self, timeout=None):
+    def get_servers(self):
         servers_list = ServerList()
         try:
             self.__socket.sendall(self.__serialize_object(servers_list))
-            if timeout is not None:
-                self.__socket.settimeout(timeout)
             server_response = self.__socket.recv(self.__MAX_PACKAGE)
             if server_response == '':
                 return []
@@ -70,8 +68,8 @@ class Connector:
             print(f'Server responded with {server_response}')
             if server_response['request_type'] == request_types.SERVER_LISTS:
                 return server_response['response']
-        except socket.timeout:
-            self.__socket.settimeout(None)
+            else:
+                raise Exception
         except Exception as e:
             print(f'Error sending and receiving data from server (Server list) {e}')
         return []

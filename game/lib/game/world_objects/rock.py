@@ -9,16 +9,16 @@ rock_sprite = [pygame.image.load('config/assets/objects/rock1.png'),
                pygame.image.load('config/assets/objects/rock4.png')]
 
 object_config = None
-file_exists = os.path.isfile("config/object_config.json")
+file_exists = os.path.isfile("lib/config/objects/object_config.json")
 if file_exists:
-    with open("config/object_config.json") as json_file:
+    with open("lib/config/objects/object_config.json") as json_file:
         object_config = json.load(json_file)
 
 
 class Rock(WorldObject):
 
-    def __init__(self, idx, x_coordinate=10, y_coordinate=10, width=70, height=70, sprite=0):
-        super().__init__(idx, x_coordinate, y_coordinate, width, height, sprite)
+    def __init__(self, idx, x_coordinate=10, y_coordinate=10, width=70, height=70):
+        super().__init__(idx, x_coordinate, y_coordinate, width, height)
         self._sprite_path = rock_sprite[self._rand_sprite]
 
         if self._rand_sprite == 0:
