@@ -1,10 +1,11 @@
-from threading import Thread, Lock
+from threading import Thread
 import socket
 
 RECEIVE_TIMEOUT = 10
 
 
 class ReceivePackagesThread(Thread):
+    
     def __init__(self, sock, q, max_package):
         Thread.__init__(self)
         self.__socket = sock
@@ -35,6 +36,7 @@ class ReceivePackagesThread(Thread):
 
 
 class SendPackagesThread(Thread):
+    
     def __init__(self, sock, q):
         Thread.__init__(self)
         self.__socket = sock
