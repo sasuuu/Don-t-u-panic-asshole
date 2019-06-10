@@ -1,6 +1,7 @@
 import pygame
 import math
 from game.lib.game.weapons.weapon import Weapon
+from game.lib.game.heroes.animations.bullet_animation import BulletAnimation
 
 
 class Distance(Weapon):
@@ -15,3 +16,7 @@ class Distance(Weapon):
         self._collision_width = 20
         self._collision_height = 20
         self._damage = damage
+        self.__bullet_animation = BulletAnimation()
+
+    def update_sprite(self):
+        self._sprite = self.__bullet_animation.get_sprite()
