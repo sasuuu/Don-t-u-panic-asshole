@@ -95,8 +95,6 @@ class GameRunner:
     def __handle_keydown_events(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[LEFT_BUTTON]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            print(mouse_x, mouse_y)
-            print(self.__screen_size)
             self.selected_weapon(mouse_x, mouse_y)
             self.__set_attack_direction(mouse_x, mouse_y)
 
