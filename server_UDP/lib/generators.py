@@ -20,7 +20,7 @@ class MapGenerator(object):
         print(object_types_count)
         for i in range(random.randrange(MIN_ITEMS_COUNT, MAX_ITEMS_COUNT)):
             list.append(GameObject(GameObject.get_next_id(),
-                                   (random.randrange(0, 100), random.randrange(0, 10)),
-                                   random.randrange(1, object_types_count)))
+                                   (random.randrange(0, 200), random.randrange(0, 200)),
+                                   random.randrange(2, object_types_count)))
 
         return list

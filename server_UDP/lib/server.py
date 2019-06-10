@@ -20,6 +20,7 @@ from lib.model.character import Character
 from lib.object_types import ObjectTypes
 from lib.package_threads import ReceivePackagesThread, SendPackagesThread
 from lib.generators import MapGenerator
+from lib.model.game_object import GameObject
 
 QUEUE_SIZE = 20
 CHUNK_HEIGHT = 2160
@@ -37,8 +38,6 @@ if file_exists:
 
 
 class Server(Thread):
-
-    object_id = 0
 
     def __init__(self):
         Thread.__init__(self)
@@ -104,10 +103,6 @@ class Server(Thread):
 
     def get_chunks_list(self):
         return self.__chunks_list
-
-    def __get_next_id(self):
-        self.object_id = self.object_id + 1
-        return self.object_id
 
     def __create_chunks(self):
         pos_x = 0
@@ -254,7 +249,7 @@ class Server(Thread):
                 return client
 
     def __create_new_character(self, nick):
-        character = Character(self.__get_next_id(), nick, CHARACTER_START_HEALTH, CHARACTER_START_POSITION, [])
+        character = Character(GameObject.get_next_id(), nick, CHARACTER_START_HEALTH, CHARACTER_START_POSITION, [])
         self.__clients_characters.append(character)
         return character
 
