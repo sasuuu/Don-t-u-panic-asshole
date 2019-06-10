@@ -60,7 +60,11 @@ class Connector:
         servers_list = ServerList()
         try:
             self.__socket.sendall(self.__serialize_object(servers_list))
-            server_response = self.__deserialize_object(self.__socket.recv(self.__MAX_PACKAGE))
+            server_response = self.__socket.recv(self.__MAX_PACKAGE)
+            if server_response == '':
+                return []
+            else:
+                server_response = self.__deserialize_object(server_response)
             print(f'Server responded with {server_response}')
             if server_response['request_type'] == request_types.SERVER_LISTS:
                 return server_response['response']
