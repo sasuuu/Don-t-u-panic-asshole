@@ -5,6 +5,7 @@ from game.lib.game.weapons.weapon import Weapon
 
 
 class Melee(Weapon):
+
     def __init__(self, x, y, horizontal, vertical, center_x, center_y, screen_size, damage):
         self.__angle = math.atan2(vertical - center_y - screen_size[1] / 2, horizontal - center_x - screen_size[0] / 2)
         self._vel_horizontal = math.cos(self.__angle) * 10
