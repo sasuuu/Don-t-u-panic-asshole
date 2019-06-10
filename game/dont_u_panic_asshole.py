@@ -243,7 +243,7 @@ class Game:
         self.__screen.fill(colors.WHITE)
 
     def get_delta_time(self):
-        return self.__clock.get_time() / SECOND_IN_MILISECONDS
+        return self.__clock.get_time() / SECOND_IN_MILLISECONDS
 
     def quit(self):
         self.__tcp_thread_stop = True
