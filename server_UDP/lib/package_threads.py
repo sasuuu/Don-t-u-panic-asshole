@@ -5,6 +5,7 @@ RECEIVE_TIMEOUT = 10
 
 
 class ReceivePackagesThread(Thread):
+    
     def __init__(self, sock, q, max_package):
         Thread.__init__(self)
         self.__socket = sock
