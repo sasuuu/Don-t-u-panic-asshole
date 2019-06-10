@@ -224,14 +224,18 @@ class GameRunner:
 
         if action == MELEE:
             self.__weapons.append(
-                Melee(self.__main_hero.get_x() + self.__screen_size[0] / 2 + self.__main_hero.get_center_x(),
-                      self.__main_hero.get_y() + self.__screen_size[1] / 2 + self.__main_hero.get_center_x(),
+                Melee(self.__main_hero.get_x()
+                      + self.__screen_size[self.__x_index] / 2 + self.__main_hero.get_center_x(),
+                      self.__main_hero.get_y()
+                      + self.__screen_size[self.__y_index] / 2 + self.__main_hero.get_center_x(),
                       horizontal, vertical, self.__main_hero.get_center_x(), self.__main_hero.get_center_y(),
                       self.__screen_size, damage))
         elif action == DISTANCE:
             self.__weapons.append(
-                Distance(self.__main_hero.get_x() + self.__screen_size[0] / 2 + self.__main_hero.get_center_x(),
-                         self.__main_hero.get_y() + self.__screen_size[1] / 2 + self.__main_hero.get_center_x(),
+                Distance(self.__main_hero.get_x()
+                         + self.__screen_size[self.__x_index] / 2 + self.__main_hero.get_center_x(),
+                         self.__main_hero.get_y()
+                         + self.__screen_size[self.__y_index] / 2 + self.__main_hero.get_center_x(),
                          horizontal, vertical, self.__main_hero.get_center_x(), self.__main_hero.get_center_y(),
                          self.__screen_size, damage))
 

@@ -1,4 +1,5 @@
 class Weapon:
+
     _pos_x = None
     _pos_y = None
     _vel_horizontal = None
