@@ -15,7 +15,7 @@ class ObjectGenerator:
         for i in range(15):
             type = randint(0, 1) 
             if type == 0:
-                object_list.append(Rock(coordinate_x[i], coordinate_y[i]))
+                object_list.append(Rock(0, coordinate_x[i], coordinate_y[i]))
             elif type == 1:
-                object_list.append(Tree(coordinate_x[i], coordinate_y[i]))
+                object_list.append(Tree(0, coordinate_x[i], coordinate_y[i]))
         return object_list
