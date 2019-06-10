@@ -1,7 +1,3 @@
 {
-  "item_sprite_size": 64,
-  "melee": 0,
-  "distance": 1,
-  "hook_damage": 5,
-  "stick_damage": 5
+  "item_sprite_size": 64
 }
