@@ -29,7 +29,7 @@ class ServerList:
 
     def loop(self):
         if self.__server_list is None or self.__try_again is True:
-            self.__server_list = self.__tcp_connector.get_servers(1)
+            self.__server_list = self.__tcp_connector.get_servers()
             self.__server_strings = self.__refacotr_strings(self.__server_list)
             if not self.__server_list:
                 self.__interactive_menu = interactive_menu.InteractiveMenu(0.25, 0.2, 0.5, 0.6)
