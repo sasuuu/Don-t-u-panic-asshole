@@ -1,5 +1,5 @@
 {
-
+  "tree_hp": 100,
   "rock1_move_left_corner_y": 15,
   "rock1_move_left_corner_x":15,
   "rock1_width_collision": 70,
