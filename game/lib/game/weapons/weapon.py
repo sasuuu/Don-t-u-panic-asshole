@@ -49,3 +49,6 @@ class Weapon:
 
     def get_damage(self):
         return self._damage
+
+    def update_sprite(self):
+        pass

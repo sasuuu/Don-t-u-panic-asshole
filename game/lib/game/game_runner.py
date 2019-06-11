@@ -14,6 +14,7 @@ from lib.game.world_objects.rock import Rock
 from lib.game.world_objects.tree import Tree
 from lib.game.weapons.distance import Distance
 from lib.game.weapons.melee import Melee
+from lib.game.heroes.animations.main_hero_attack_close import MainHeroAttack
 
 
 item_config = None
@@ -27,6 +28,11 @@ MELEE = item_config['melee']
 IDLE_SPEED = 0
 CROSS_SPEED = 0.7071
 LEFT_BUTTON = 0
+
+A1 = 0.5625
+A2 = -0.5625
+B1 = 0
+B2 = 720
 
 
 class GameRunner:
@@ -53,6 +59,8 @@ class GameRunner:
         self.__hero_data = None
         self.__movement_events = []
         self.__weapons = []
+        self.__attack_flag = False
+        self.__sprite = pygame.image.load('config/assets/movement/right/main_hero_run_right_0.png')
 
     def __create_hero(self, hero_data):
         if self.__main_hero is None:
@@ -66,11 +74,13 @@ class GameRunner:
             self.__marked_slot_sprite = self.__main_hero.get_equipment().get_marked_background()
 
     def loop(self):
+        self.__handle_events()
         self.__game.create_udp_connection_thread()
         self.__check_server_response()
         if self.__main_hero is not None:
             self.__handle_events()
             self.__transform()
+            self.__attack_animation()
             self.__draw()
             self.__weapon_refresh()
 
@@ -80,6 +90,7 @@ class GameRunner:
                 weapon.update_x()
                 weapon.update_y()
                 weapon.update_time_of_life()
+                weapon.update_sprite()
             else:
                 self.__weapons.pop(self.__weapons.index(weapon))
             self.__check_weapon_collision(weapon)
@@ -105,6 +116,7 @@ class GameRunner:
         if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[LEFT_BUTTON]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             self.selected_weapon(mouse_x, mouse_y)
+            self.__set_attack_direction(mouse_x, mouse_y)
 
         if event.type == pygame.KEYDOWN and self.__check_event_type(event) == 'movement':
             self.__movement_events.append(event.key)
@@ -168,7 +180,10 @@ class GameRunner:
 
     def __draw(self):
         self.__map.fill_screen_with_grass()
-        self.__screen.blit(self.__main_hero.get_sprite(), self.__main_hero_pos)
+        if self.__attack_flag:
+            self.__screen.blit(self.__sprite, self.__main_hero_pos)
+        else:
+            self.__screen.blit(self.__main_hero.get_sprite(), self.__main_hero_pos)
         for world_object in self.__objects:
             self.__screen.blit(world_object.get_sprite(),
                                (
@@ -252,6 +267,12 @@ class GameRunner:
         if event.key == pygame.K_w or event.key == pygame.K_a or event.key == pygame.K_s or event.key == pygame.K_d:
             return 'movement'
 
+    def get_main_hero(self):
+        return self.__main_hero
+
+    def get_game(self):
+        return self.__game
+
     def selected_weapon(self, horizontal, vertical):
         marked_index = self.__main_hero.get_equipment().get_marked_index()
         marked_item = self.__main_hero.get_equipment().get_item_by_index(marked_index)
@@ -278,3 +299,29 @@ class GameRunner:
                          + self.__screen_size[self.__y_index] / 2 + self.__main_hero.get_center_x(),
                          horizontal, vertical, self.__main_hero.get_center_x(), self.__main_hero.get_center_y(),
                          self.__screen_size, damage))
+
+    def attack(self, direction):
+        MainHeroAttack.set_direction(MainHeroAttack, direction)
+        self.__attack_flag = True
+
+    def __attack_animation(self):
+        if self.__attack_flag:
+            self.__sprite = MainHeroAttack.attack_animation(MainHeroAttack)
+            if not self.__sprite:
+                self.__attack_flag = False
+                self.__sprite = ''
+
+    def __set_attack_direction(self, mouse_x, mouse_y):
+        self.__attack_flag = True
+        direction = self.__check_direction(mouse_x, mouse_y)
+        MainHeroAttack.set_direction(MainHeroAttack, direction)
+
+    def __check_direction(self, x, y):
+        if x >= (y - B1) / A1 and x > (y - B2) / A2:
+            return 'right'
+        elif (y - B1) / A1 >= x > (y - B2) / A2:
+            return 'down'
+        elif x <= (y - B2) / A2 and x < (y - B1) / A1:
+            return 'left'
+        else:
+            return 'up'

@@ -1,6 +1,7 @@
 import pygame
 import os
 import json
+import glob
 from math import fabs
 from lib.game.equipment_and_crafting.equipment import Equipment
 
@@ -21,29 +22,10 @@ SPRITE_CHANGE_DELTA_TIME = 100
 
 IDLE_SPEED = 0
 
-right_sprite = [pygame.image.load('config/assets/main_hero_run_right_0.png'),
-                pygame.image.load('config/assets/main_hero_run_right_1.png'),
-                pygame.image.load('config/assets/main_hero_run_right_2.png'),
-                pygame.image.load('config/assets/main_hero_run_right_3.png'),
-                pygame.image.load('config/assets/main_hero_run_right_4.png'),
-                pygame.image.load('config/assets/main_hero_run_right_5.png')]
-
-down_sprite = [pygame.image.load('config/assets/main_hero_run_down_0.png'),
-               pygame.image.load('config/assets/main_hero_run_down_1.png'),
-               pygame.image.load('config/assets/main_hero_run_down_2.png'),
-               pygame.image.load('config/assets/main_hero_run_down_3.png')]
-
-left_sprite = [pygame.image.load('config/assets/main_hero_run_left_0.png'),
-               pygame.image.load('config/assets/main_hero_run_left_1.png'),
-               pygame.image.load('config/assets/main_hero_run_left_2.png'),
-               pygame.image.load('config/assets/main_hero_run_left_3.png'),
-               pygame.image.load('config/assets/main_hero_run_left_4.png'),
-               pygame.image.load('config/assets/main_hero_run_left_5.png')]
-
-up_sprite = [pygame.image.load('config/assets/main_hero_run_up_0.png'),
-             pygame.image.load('config/assets/main_hero_run_up_1.png'),
-             pygame.image.load('config/assets/main_hero_run_up_2.png'),
-             pygame.image.load('config/assets/main_hero_run_up_3.png')]
+right_sprite = glob.glob('config/assets/movement/right/*.png')
+down_sprite = glob.glob('config/assets/movement/down/*.png')
+left_sprite = glob.glob('config/assets/movement/left/*.png')
+up_sprite = glob.glob('config/assets/movement/up/*.png')
 
 
 class MainHero:
@@ -57,7 +39,7 @@ class MainHero:
     __nick = ''
 
     def __init__(self, game_runner, game, position, nickname, hp, items: []):
-        self.__character = pygame.image.load('config/assets/main_hero.png')
+        self.__character = pygame.image.load('config/assets/movement/main_hero.png')
         self.__move_speed = BASE_SPEED
         self.__position_x = position[0]
         self.__position_y = position[1]
@@ -145,7 +127,7 @@ class MainHero:
         else:
             sprite = self.get_standing_sprite()
 
-        return sprite
+        return pygame.image.load(sprite)
 
     def update_sprite(self):
         actual_time = pygame.time.get_ticks()
@@ -233,3 +215,5 @@ class MainHero:
     def get_vertical_speed(self):
         return self.__vertical_speed
 
+    def get_damage(self):
+        return self.__damage
