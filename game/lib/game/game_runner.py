@@ -24,8 +24,7 @@ class GameRunner:
         self.__screen_size = self.__screen.get_size()
         self.__map = Map(self.__game)
         self.__udp_connector = self.__game.get_udp_connector()
-        self.__objects = ObjectGenerator.generate_objects()
-        self.__objects.sort(key=lambda y_coord: y_coord.get_y())
+        self.__objects = []
         self.__main_hero = None
         self.__main_hero_horizontal_speed = IDLE_SPEED
         self.__main_hero_vertical_speed = IDLE_SPEED
