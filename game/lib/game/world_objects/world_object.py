@@ -15,7 +15,7 @@ class WorldObject:
     _height_collision = None
     _object_id = None
 
-    def __init__(self, idx, x_coordinate, y_coordinate, width, height):
+    def __init__(self,  idx, x_coordinate, y_coordinate, width, height, sprite=0):
         self._x_coordinate = x_coordinate
         self._y_coordinate = y_coordinate
         self._width = width
@@ -24,7 +24,7 @@ class WorldObject:
         self._height_collision = height
         self._move_left_corner_x = 0
         self._move_left_corner_y = 0
-        self._rand_sprite = randint(0, 3)
+        self._rand_sprite = sprite
         self._object_id = idx
 
     def get_id(self):
