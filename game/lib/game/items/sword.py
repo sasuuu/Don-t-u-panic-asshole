@@ -10,13 +10,13 @@ if file_exists:
         item_config = json.load(json_file)
 
 
-class Hook(Item):
+class Sword(Item):
 
     def __init__(self):
-        self._id = 2
-        self._name = 'hook'
-        self._sprite = pygame.transform.scale(pygame.image.load('config/assets/items/hook.png'),
+        self._id = 4
+        self._name = 'sword'
+        self._sprite = pygame.transform.scale(pygame.image.load('config/assets/items/sword.png'),
                                               (item_config['item_sprite_size'], item_config['item_sprite_size']))
         self._action = item_config['melee']
-        self._damage = item_config['hook_damage']
+        self._damage = item_config['sword_damage']
 
