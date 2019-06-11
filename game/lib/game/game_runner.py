@@ -196,12 +196,12 @@ class GameRunner:
                     position = world_object['position']['py/tuple']
                     object_id = world_object['idx']
                     sprite = world_object['sprite']
-                    self.__objects.append(Rock(sprite, object_id, position[0], position[1]))
+                    self.__objects.append(Rock(object_id, sprite, position[0], position[1]))
                 elif world_object['object_type'] == 6:
                     position = world_object['position']['py/tuple']
                     object_id = world_object['idx']
                     sprite = world_object['sprite']
-                    self.__objects.append(Tree(sprite, object_id, position[0], position[1]))
+                    self.__objects.append(Tree( object_id, sprite, position[0], position[1]))
         self.__objects.sort(key=lambda y_coord: y_coord.get_y())
 
     def __check_event_type(self, event):

@@ -17,7 +17,7 @@ if file_exists:
 
 class Rock(WorldObject):
 
-    def __init__(self, idx, x_coordinate=10, y_coordinate=10, width=70, height=70, sprite=0):
+    def __init__(self, idx, sprite=0, x_coordinate=10, y_coordinate=10, width=70, height=70):
         super().__init__(idx, x_coordinate, y_coordinate, width, height, sprite)
         self._sprite_path = rock_sprite[self._rand_sprite]
 

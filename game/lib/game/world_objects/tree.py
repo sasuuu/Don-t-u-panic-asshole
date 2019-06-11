@@ -18,7 +18,7 @@ if file_exists:
 
 class Tree(WorldObject):
 
-    def __init__(self,idx, x_coordinate=100, y_coordinate=100, width=70, height=70, sprite=0):
+    def __init__(self, idx, sprite=0, x_coordinate=100, y_coordinate=100, width=70, height=70):
         super().__init__(idx, x_coordinate, y_coordinate, width, height, sprite)
         self._sprite_path = tree_sprite[self._rand_sprite]
         self._move_left_corner_x = 125
