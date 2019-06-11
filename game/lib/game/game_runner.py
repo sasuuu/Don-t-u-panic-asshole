@@ -10,8 +10,11 @@ from lib.game.heroes.hero import Hero
 from lib.config.controllers.controller import Controller
 from lib.game.heroes.hero_movement import HeroMovement
 from lib import gamestates
+from lib.game.world_objects.rock import Rock
+from lib.game.world_objects.tree import Tree
 from lib.game.weapons.distance import Distance
 from lib.game.weapons.melee import Melee
+
 
 item_config = None
 file_exists = os.path.isfile("lib/config/items/item_config.json")
@@ -35,8 +38,7 @@ class GameRunner:
         self.__screen_size = self.__screen.get_size()
         self.__map = Map(self.__game)
         self.__udp_connector = self.__game.get_udp_connector()
-        self.__objects = ObjectGenerator.generate_objects()
-        self.__objects.sort(key=lambda y_coord: y_coord.get_y())
+        self.__objects = []
         self.__main_hero = None
         self.__main_hero_horizontal_speed = IDLE_SPEED
         self.__main_hero_vertical_speed = IDLE_SPEED
@@ -207,8 +209,9 @@ class GameRunner:
             if response['type'] == request_types.UDP_LOGIN:
                 if self.__main_hero is None:
                     self.__create_hero(response['data'][0])
+                    self.__create_objects(response['data'][1:])
             elif response['type'] == request_types.UDP_SERVER_UPDATE:
-                self.recreate_objects(response)
+                self.__create_objects(response['data'])
             elif response['type'] == request_types.UDP_UPDATE_POSITION:
                 self.update_positions(response)
                 self.__objects.sort(key=lambda y_coord: y_coord.get_y())
@@ -221,18 +224,28 @@ class GameRunner:
                 world_object.set_x(position[0])
                 world_object.set_y(position[1])
 
-    def recreate_objects(self, response):
+    def __create_objects(self, object_list):
         self.__objects = []
-        object_list = response['data']
         for world_object in object_list:
-            if world_object['py/object'] == 'lib.model.character.Character' and \
-                    world_object['nick'] != self.__main_hero.get_nick():
-                hp = world_object['health']
-                nick = world_object['nick']
-                items = world_object['items']
-                object_id = world_object['idx']
-                position = world_object['position']['py/tuple']
-                self.__objects.append(Hero(position[0], position[1], hp, nick, items, object_id))
+            if 'object_type' in world_object:
+                if world_object['py/object'] == 'lib.model.character.Character' and \
+                        world_object['nick'] != self.__main_hero.get_nick():
+                    hp = world_object['health']
+                    nick = world_object['nick']
+                    items = world_object['items']
+                    object_id = world_object['idx']
+                    position = world_object['position']['py/tuple']
+                    self.__objects.append(Hero(position[0], position[1], hp, nick, items, object_id))
+                elif world_object['object_type'] == 2 or world_object['object_type'] == 4:
+                    position = world_object['position']['py/tuple']
+                    object_id = world_object['idx']
+                    sprite = world_object['sprite']
+                    self.__objects.append(Rock(object_id, sprite, position[0], position[1]))
+                elif world_object['object_type'] == 6:
+                    position = world_object['position']['py/tuple']
+                    object_id = world_object['idx']
+                    sprite = world_object['sprite']
+                    self.__objects.append(Tree( object_id, sprite, position[0], position[1]))
         self.__objects.sort(key=lambda y_coord: y_coord.get_y())
 
     def __check_event_type(self, event):
