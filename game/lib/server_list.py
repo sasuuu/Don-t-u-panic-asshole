@@ -16,11 +16,10 @@ FONT_SIZE = game_config['intro_font_size'] if game_config is not None else 50
 
 
 class ServerList:
-
     def __init__(self, game):
         self.__menu_title = "Servers"
         self.__game = game
-        self.__connector = self.__game.get_connector()
+        self.__tcp_connector = self.__game.get_tcp_connector()
         self.__active_server = 0
         self.__title = pygame.font.SysFont(FONT_STYLE, FONT_SIZE)
         self.__server_list = None
@@ -30,8 +29,8 @@ class ServerList:
 
     def loop(self):
         if self.__server_list is None or self.__try_again is True:
-            self.__server_list = self.__connector.get_servers()
-            self.__server_strings = self.__refactor_strings(self.__server_list)
+            self.__server_list = self.__tcp_connector.get_servers()
+            self.__server_strings = self.__refacotr_strings(self.__server_list)
             if not self.__server_list:
                 self.__interactive_menu = interactive_menu.InteractiveMenu(0.25, 0.2, 0.5, 0.6)
                 self.__try_again = True
@@ -48,7 +47,6 @@ class ServerList:
                 if self.__server_list:
                     self.__active_server = self.__interactive_menu.get_marked_line_index
                     self.__game.set_state(gamestates.GAME)
-                    print(self.__active_server)
 
         self.__generate_view(events)
 
@@ -60,8 +58,7 @@ class ServerList:
         display_surface.blit(title, title_rect)
         self.__interactive_menu.draw(events)
 
-    @staticmethod
-    def __refactor_strings(server_list):
+    def __refacotr_strings(self, server_list):
         servers_strings = []
         first_row_length = 20
         second_row_length = 34

@@ -1,7 +1,7 @@
 import pygame
 import math
 
-from game.lib.game.weapons.weapon import Weapon
+from lib.game.weapons.weapon import Weapon
 
 
 class Melee(Weapon):

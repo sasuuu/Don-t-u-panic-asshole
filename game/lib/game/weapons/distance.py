@@ -1,5 +1,6 @@
 import pygame
 import math
+from lib.game.weapons.weapon import Weapon
 from game.lib.game.weapons.weapon import Weapon
 from game.lib.game.heroes.animations.bullet_animation import BulletAnimation
 

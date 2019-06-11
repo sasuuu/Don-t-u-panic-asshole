@@ -17,8 +17,8 @@ if file_exists:
 
 class Rock(WorldObject):
 
-    def __init__(self, x_coordinate=10, y_coordinate=10, width=70, height=70):
-        super().__init__(x_coordinate, y_coordinate, width, height)
+    def __init__(self, idx, x_coordinate=10, y_coordinate=10, width=70, height=70):
+        super().__init__(idx, x_coordinate, y_coordinate, width, height)
         self._sprite_path = rock_sprite[self._rand_sprite]
 
         if self._rand_sprite == 0:
