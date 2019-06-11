@@ -73,15 +73,12 @@ class GameRunner:
 
     def loop(self):
         self.__handle_events()
-        self.__transform()
-        self.__attack_animation()
-        self.__draw()
-        self.__weapon_refresh()
         self.__game.create_udp_connection_thread()
         self.__check_server_response()
         if self.__main_hero is not None:
             self.__handle_events()
             self.__transform()
+            self.__attack_animation()
             self.__draw()
             self.__weapon_refresh()
 
@@ -307,7 +304,7 @@ class GameRunner:
         MainHeroAttack.set_direction(MainHeroAttack, direction)
 
     def __check_direction(self, x, y):
-        if x >= (y - B1) / A1  and x > (y - B2) / A2:
+        if x >= (y - B1) / A1 and x > (y - B2) / A2:
             return 'right'
         elif (y - B1) / A1 >= x > (y - B2) / A2:
             return 'down'

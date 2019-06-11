@@ -2,7 +2,6 @@ import pygame
 import os
 import json
 import glob
-from lib.game.heroes.hero import Hero
 from math import fabs
 from lib.game.equipment_and_crafting.equipment import Equipment
 from lib.game.items.hook import Hook
@@ -42,8 +41,6 @@ class MainHero:
     __nick = ''
 
     def __init__(self, game_runner, game, position, nickname, hp, items: []):
-        self.__character = pygame.image.load('config/assets/main_hero.png')
-    def __init__(self, game_runner, game):
         self.__character = pygame.image.load('config/assets/movement/main_hero.png')
         self.__move_speed = BASE_SPEED
         self.__position_x = position[0]
