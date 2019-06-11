@@ -53,7 +53,6 @@ class GameRunner:
         self.__y_index = 1
         self.__movement_events = []
         self.__weapons = []
-
         self.__attack_flag = False
         self.__sprite = pygame.image.load('config/assets/movement/right/main_hero_run_right_0.png')
 
