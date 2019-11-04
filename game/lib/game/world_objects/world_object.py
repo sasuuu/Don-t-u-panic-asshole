@@ -14,6 +14,7 @@ class WorldObject:
     _width_collision = None
     _height_collision = None
     _object_id = None
+    _life = None
 
     def __init__(self,  idx, x_coordinate, y_coordinate, width, height, sprite=0):
         self._x_coordinate = x_coordinate
